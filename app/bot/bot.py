@@ -81,7 +81,7 @@ class Bot:
     async def process_command(self, message: Message):
         content_parts = message.content.removeprefix("!").split()
 
-        if command := self.commands.get(content_parts[0]):
+        if command := self.commands.get(content_parts[0].lower()):
             await command(content_parts, message)
 
     async def cube(self, parts: list[str], message: Message):
