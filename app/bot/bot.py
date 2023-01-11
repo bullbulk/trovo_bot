@@ -76,6 +76,12 @@ class Bot:
         db.refresh(dice_amount)
 
     async def process_message(self, message: Message):
+        if "+ в чат" in message.content.lower():
+            await self.api.send(
+                "+",
+                self.api.network.channel_id
+            )
+
         if message.content.startswith("!"):
             await self.process_command(message)
 
