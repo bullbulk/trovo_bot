@@ -1,0 +1,17 @@
+cryptography~=38.0.4
+bcrypt~=4.0.1
+
+alembic~=1.9.1
+SQLAlchemy~=1.4.45
+fastapi~=0.88.0
+PyJWT==2.6.0
+pydantic~=1.10.2
+starlette~=0.22.0
+passlib~=1.7.4
+emails~=0.6
+tenacity~=8.1.0
+psycopg2-binary~=2.9.5
+websockets~=10.4
+aiohttp~=3.8.3
+loguru~=0.6.0
+python-dotenv~=0.21.0
