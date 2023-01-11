@@ -38,7 +38,7 @@ class Api:
         if channel_id:
             data["channel_id"] = channel_id
 
-        return await self.network.get(
+        return await self.network.post(
             "/chat/send",
             json=data
         )
