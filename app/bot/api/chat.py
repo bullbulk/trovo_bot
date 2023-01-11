@@ -86,7 +86,7 @@ class ChatHandler:
                 if data.type != WebSocketMessageType.CHAT:
                     continue
 
-                if data.data.get("chats"):
+                if isinstance(data.data, dict):
                     logger.warning(message)
                     continue
 
