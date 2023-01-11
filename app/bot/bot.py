@@ -20,7 +20,8 @@ class Bot:
         self.api = Api()
 
         self.commands: dict[str, CommandFunction] = {
-            "отпежить": self.cube
+            "отпежить": self.cube,
+            "баланс": self.balance,
         }
 
     async def run(self):
@@ -88,7 +89,7 @@ class Bot:
         try:
             target = parts[1]
             target = target.removeprefix("@")
-            if target.lower() == "fedorbot2":
+            if target.lower() in ["fedorbot2", "fedorbot"]:
                 await self.api.send(
                     f"@{message.nick_name} анус свой отпежь, пёс",
                     self.api.network.channel_id
@@ -150,3 +151,18 @@ class Bot:
             db.add(dice_amount)
             db.commit()
             db.refresh(dice_amount)
+
+    async def balance(self, parts: list[str], message: Message):
+        db = self.get_db()
+
+        dice_amount = db.query(DiceAmount).filter(DiceAmount.user_id == message.sender_id).first()
+        if not dice_amount:
+            dice_amount = DiceAmount(user_id=message.sender_id, amount=0)
+            db.add(dice_amount)
+            db.commit()
+            db.refresh(dice_amount)
+
+        await self.api.send(
+            f"@{message.nick_name} кубов у тебя на счету: {dice_amount.amount}",
+            self.api.network.channel_id
+        )
