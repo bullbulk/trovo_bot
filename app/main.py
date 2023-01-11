@@ -8,7 +8,8 @@ from app.api.api_v1.api import api_router
 from app.api.deps import get_db
 from app.bot import bot_instance
 from app.config import settings
-from core.config import set_config
+from app.core.config import set_config
+
 
 app = FastAPI(
     title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json"
