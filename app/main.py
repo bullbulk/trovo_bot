@@ -5,11 +5,8 @@ from starlette.middleware.cors import CORSMiddleware
 
 from app import logger
 from app.api.api_v1.api import api_router
-from app.api.deps import get_db
 from app.bot import bot_instance
 from app.config import settings
-from app.core.config import set_config
-
 
 app = FastAPI(
     title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json"
@@ -28,7 +25,9 @@ if settings.BACKEND_CORS_ORIGINS:
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 logger.init()
-set_config(next(get_db()), "refresh_token", "7e93096363d049cb9b590ef9e116f0bd")
+
+
+# set_config(next(get_db()), "refresh_token", "7e93096363d049cb9b590ef9e116f0bd")
 
 
 @app.on_event("startup")
