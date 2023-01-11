@@ -3,7 +3,7 @@ import asyncio
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-import logger
+from app import import logger
 from app.api.api_v1.api import api_router
 from app.api.deps import get_db
 from app.bot import bot_instance
