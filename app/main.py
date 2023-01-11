@@ -1,7 +1,3 @@
-import dotenv
-
-dotenv.load_dotenv()
-
 import asyncio
 
 from fastapi import FastAPI

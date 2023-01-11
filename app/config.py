@@ -2,6 +2,10 @@ from typing import Any
 
 from pydantic import AnyHttpUrl, BaseSettings, EmailStr, validator, PostgresDsn, AnyUrl
 
+import dotenv
+
+dotenv.load_dotenv()
+
 
 class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
