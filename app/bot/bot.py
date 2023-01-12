@@ -157,10 +157,7 @@ class Bot:
             )
             subtract_cubes = True
         else:
-            if success_dices_num == 1:
-                ban_seconds = 600
-            else:
-                ban_seconds = success_dices_num * 300
+            ban_seconds = success_dices_num * 600
 
             data = await self.api.command(
                 f"ban {target} {ban_seconds}",
