@@ -31,6 +31,12 @@ class Api:
             "/getuserinfo"
         )
 
+    async def get_users(self, nicknames: list[str]):
+        return await self.network.post(
+            "/getusers",
+            json={"user": nicknames}
+        )
+
     async def send(self, content: str, channel_id: int = None):
         data = {
             "content": content
