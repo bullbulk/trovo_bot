@@ -6,7 +6,13 @@ from loguru import logger
 from app.api.deps import get_db
 from app.config import settings
 from app.core.config import set_config, get_config
-from .statuses import INVALID_ACCESS_TOKEN, INVALID_REFRESH_TOKEN
+from .statuses import (
+    INVALID_ACCESS_TOKEN, 
+    INVALID_REFRESH_TOKEN,
+    EXPIRED_ACCESS_TOKEN,
+    EXPIRED_REFRESH_TOKEN
+)
+
 
 scopes = [
     "user_details_self", "channel_details_self",
@@ -163,10 +169,10 @@ class NetworkManager:
         try:
             data = await res.json()
 
-            if data.get("status") == INVALID_ACCESS_TOKEN:
+            if data.get("status") in (INVALID_ACCESS_TOKEN, EXPIRED_ACCESS_TOKEN):
                 await self.refresh()
                 return await self.request(session, method, url, **kwargs)
-            elif data.get("status") == INVALID_REFRESH_TOKEN:
+            elif data.get("status") in (INVALID_REFRESH_TOKEN, EXPIRED_REFRESH_TOKEN):
                 self.ready = False
                 raise AuthError()
 
