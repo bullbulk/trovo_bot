@@ -1,9 +1,6 @@
 import logging
-import sys
-from pprint import pformat
 
 from loguru import logger
-from loguru._defaults import LOGURU_FORMAT
 
 
 class InterceptHandler(logging.Handler):
@@ -26,24 +23,8 @@ class InterceptHandler(logging.Handler):
         )
 
 
-def format_record(record: dict) -> str:
-    format_string = LOGURU_FORMAT
-
-    if record["extra"].get("payload") is not None:
-        record["extra"]["payload"] = pformat(
-            record["extra"]["payload"], indent=4, compact=True, width=88
-        )
-        format_string += "\n<level>{extra[payload]}</level>"
-
-    format_string += "{exception}\n"
-    return format_string
-
-
 def init():
     logger.add("log/main.log")
 
     logging.getLogger().handlers.append(InterceptHandler())
-    logger.configure(
-        handlers=[{"sink": sys.stdout, "level": logging.DEBUG, "format": format_record}]
-    )
     logging.getLogger("uvicorn.access").handlers.append(InterceptHandler())
