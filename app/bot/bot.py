@@ -22,6 +22,7 @@ class Bot:
         self.commands: dict[str, CommandFunction] = {
             "отпежить": self.cube,
             "баланс": self.balance,
+            "help": self.help,
         }
 
     async def run(self):
@@ -43,7 +44,10 @@ class Bot:
             asyncio.create_task(self.process_message(message))
 
     async def process_spell(self, message: Message):
-        logger.info(f"{message.send_time, message.nick_name, message.content}")
+        logger.info(
+            f"{message.send_time.strftime('%m/%d/%Y, %H:%M:%S.%f'), message.nick_name} "
+            f"{message.sender_id, message.content}"
+        )
 
         if message.content.get("gift") == "MrCube":
             await self.process_dice_spell(message)
@@ -177,7 +181,7 @@ class Bot:
                 await self.api.send(
                     f"@{message.nick_name} результат: {result_str}, "
                     f"{target} должен был отлететь на {ban_seconds // 60} минут, "
-                    f"но при при мьюте произошла ошибка. "
+                    f"но при мьюте произошла ошибка. "
                     f"Возможно, ты неправильно написал ник или пользователь уже в бане",
                     self.api.network.channel_id
                 )
@@ -187,6 +191,14 @@ class Bot:
             db.add(dice_amount)
             db.commit()
             db.refresh(dice_amount)
+
+    async def help(self, parts: list[str], message: Message):
+        response = f"Команды: {', '.join(list(self.commands.keys()))}"
+
+        await self.api.send(
+            response,
+            self.api.network.channel_id
+        )
 
     async def balance(self, parts: list[str], message: Message):
         target_id = None
