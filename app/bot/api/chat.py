@@ -62,7 +62,8 @@ class ChatHandler:
         logger.info("Connecting")
 
         self.socket = await websockets.connect(
-            settings.TROVO_WEBSOCKET_HOST, create_protocol=WEBSOCKET_PROTOCOL_CLASS
+            settings.TROVO_WEBSOCKET_HOST, create_protocol=WEBSOCKET_PROTOCOL_CLASS,
+            ping_interval=None, ping_timeout=None,
         )
         self.listener_task = asyncio.create_task(self.listen())
         self.socket.set_network_manager(self.network)
