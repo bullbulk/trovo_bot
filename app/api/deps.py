@@ -1,4 +1,4 @@
-from typing import Generator
+from typing import Iterator
 
 import jwt
 from fastapi import Depends, HTTPException, status
@@ -16,7 +16,7 @@ reusable_oauth2 = OAuth2PasswordBearer(
 )
 
 
-def get_db() -> Generator:
+def get_db() -> Iterator[Session]:
     try:
         db = SessionLocal()
         yield db

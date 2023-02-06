@@ -27,9 +27,6 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 logger.init()
 
 
-# set_config(next(get_db()), "refresh_token", "7e93096363d049cb9b590ef9e116f0bd")
-
-
 @app.on_event("startup")
 async def on_startup():
     loop = asyncio.get_running_loop()

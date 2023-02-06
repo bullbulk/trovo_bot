@@ -37,7 +37,7 @@ async def oauth(
 
 
 @router.get('/set_nickname')
-async def oauth(
+async def set_nickname(
         nickname: str,
         db: Session = Depends(deps.get_db),
 ) -> Any:
@@ -51,7 +51,7 @@ async def oauth(
 
 
 @router.get('/refresh')
-async def oauth(
+async def refresh(
         db: Session = Depends(deps.get_db),
 ) -> Any:
     """

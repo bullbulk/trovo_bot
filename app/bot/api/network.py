@@ -105,6 +105,8 @@ class NetworkManager:
         refresh_token = get_config(self.get_db(), "refresh_token")
         if not refresh_token:
             return
+        if not refresh_token.value:
+            return
 
         request = await self.post(
             "/refreshtoken",
