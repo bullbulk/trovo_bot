@@ -1,6 +1,6 @@
 from typing import Type
 
-from bot.commands.base import CommandInterface
+from app.bot.commands.base import CommandInterface
 
 
 class CommandListMixin:
