@@ -35,7 +35,6 @@ class Bot:
         return next(get_db())
 
     async def listen(self, message: Message):
-        print(message)
         if message.type in [MessageType.SPELL, MessageType.SPELL_CUSTOM]:
             asyncio.create_task(self.process_spell(message))
 
