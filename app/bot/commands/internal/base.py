@@ -1,25 +1,15 @@
-from abc import ABC
+from typing import TypeVar
 
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
 from app.bot.api import Api
 from app.bot.api.schemas import Message
+from .interface import CommandInterface
 
 
-class abstractclassmethod(classmethod):  # noqa
-    __isabstractmethod__ = True
-
-    def __init__(self, _callable):
-        _callable.__isabstractmethod__ = True
-        super(abstractclassmethod, self).__init__(_callable)
-
-
-class CommandInterface(ABC):
-    name: str
-    api: Api
-
-    @abstractclassmethod
+class CommandBase(CommandInterface):
+    @classmethod
     async def handle(cls, parts: list[str], message: Message, db: Session):
         pass
 
@@ -38,3 +28,6 @@ class CommandInterface(ABC):
     @staticmethod
     def get_db():
         return next(get_db())
+
+
+CommandInstance = TypeVar("CommandInstance", bound=CommandBase)

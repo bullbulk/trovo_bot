@@ -1,1 +1,2 @@
-from app.bot.commands.commands import *
+from .internal import *
+from .modules import *

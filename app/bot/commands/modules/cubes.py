@@ -1,12 +1,11 @@
 from random import randint
 
-from app.bot.commands.base import CommandInterface
-from app.bot.commands.list_mixin import command_list, CommandListMixin
+from app.bot.commands import as_command, CommandBase
 from app.models import DiceAmount
 
 
-@command_list
-class CubeCommand(CommandInterface):
+@as_command
+class CubeCommand(CommandBase):
     name = "отпежить"
 
     @classmethod
@@ -105,22 +104,8 @@ class CubeCommand(CommandInterface):
             db.refresh(dice_amount)
 
 
-@command_list
-class HelpCommand(CommandInterface):
-    name = "help"
-
-    @classmethod
-    async def handle(cls, parts, message, db):
-        response = f"Команды: {', '.join(sorted(list(CommandListMixin.commands.keys())))}"
-
-        await cls.api.send(
-            response,
-            cls.api.network.channel_id
-        )
-
-
-@command_list
-class BalanceCommand(CommandInterface):
+@as_command
+class BalanceCommand(CommandBase):
     name = "баланс"
 
     @classmethod

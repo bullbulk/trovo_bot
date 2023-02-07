@@ -1,5 +1,4 @@
 import asyncio
-from typing import TypeVar
 
 from loguru import logger
 
@@ -7,21 +6,15 @@ from app.api.deps import get_db
 from app.models import DiceAmount
 from .api import Api
 from .api.schemas import Message, MessageType
-from .commands.base import CommandInterface
-from .commands.list_mixin import CommandListMixin
-
-CommandFunction = TypeVar("CommandFunction", bound=CommandInterface)
+from .commands import get_commands, CommandBase, CommandInstance
 
 
 class Bot:
-    api: Api
-    commands: dict[str, CommandFunction]
-
     def __init__(self):
         self.api = Api()
-        CommandInterface.set_api(self.api)
+        CommandBase.set_api(self.api)
 
-        self.commands: dict[str, CommandFunction] = CommandListMixin.commands
+        self.commands: dict[str, CommandInstance] = get_commands()
 
     async def run(self):
         while not self.api.ready:
