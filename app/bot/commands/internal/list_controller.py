@@ -10,4 +10,4 @@ class CommandListController:
 
 
 def get_commands() -> dict[str, CommandInstance]:
-    return CommandListController.commands
+    return {x: y for x, y in CommandListController.commands.items() if not y.disabled}
