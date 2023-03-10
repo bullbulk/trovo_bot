@@ -38,7 +38,9 @@ class Settings(BaseSettings):
     DATABASE_URI: str | None
 
     @validator("DATABASE_URI", pre=True)
-    def assemble_db_connection(cls, v: str | None, values: dict[str, Any]) -> Any:  # noqa
+    def assemble_db_connection(
+        cls, v: str | None, values: dict[str, Any]
+    ) -> Any:  # noqa
         if isinstance(v, str):
             return v
         return PostgresDsn.build(
@@ -70,9 +72,9 @@ class Settings(BaseSettings):
     @validator("EMAILS_ENABLED", pre=True)
     def get_emails_enabled(cls, v: bool, values: dict[str, Any]) -> bool:  # noqa
         return bool(
-                values.get("SMTP_HOST")
-                and values.get("SMTP_PORT")
-                and values.get("EMAILS_FROM_EMAIL")
+            values.get("SMTP_HOST")
+            and values.get("SMTP_PORT")
+            and values.get("EMAILS_FROM_EMAIL")
         )
 
     EMAIL_TEST_USER: EmailStr

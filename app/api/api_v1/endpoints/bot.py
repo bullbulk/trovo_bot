@@ -13,8 +13,8 @@ router = APIRouter()
 
 @router.get("/login", response_model=schemas.OAuthUri)
 def login(
-        db: Session = Depends(deps.get_db),
-        # current_superuser: models.User = Depends(deps.get_current_active_superuser),
+    db: Session = Depends(deps.get_db),
+    # current_superuser: models.User = Depends(deps.get_current_active_superuser),
 ) -> Any:
     """
     Get OAuth URI to login as bot user.
@@ -23,10 +23,10 @@ def login(
     return {"uri": bot_instance.api.network.generate_oauth_uri()}
 
 
-@router.get('/oauth')
+@router.get("/oauth")
 async def oauth(
-        code: str,
-        db: Session = Depends(deps.get_db),
+    code: str,
+    db: Session = Depends(deps.get_db),
 ) -> Any:
     """
     Get exchange code for Trovo OAuth.
@@ -36,10 +36,10 @@ async def oauth(
     return {"result": "success", "code": code}
 
 
-@router.get('/set_nickname')
+@router.get("/set_nickname")
 async def set_nickname(
-        nickname: str,
-        db: Session = Depends(deps.get_db),
+    nickname: str,
+    db: Session = Depends(deps.get_db),
 ) -> Any:
     """
     Get exchange code for Trovo OAuth.
@@ -50,9 +50,9 @@ async def set_nickname(
     return {"result": "success", "trovo_channel_nickname": nickname}
 
 
-@router.get('/refresh')
+@router.get("/refresh")
 async def refresh(
-        db: Session = Depends(deps.get_db),
+    db: Session = Depends(deps.get_db),
 ) -> Any:
     """
     Get exchange code for Trovo OAuth.

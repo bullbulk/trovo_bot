@@ -9,7 +9,4 @@ class HelpCommand(CommandBase):
     async def handle(cls, parts, message, db):
         response = f"Команды: {', '.join(sorted(list(get_commands().keys())))}"
 
-        await cls.api.send(
-            response,
-            cls.api.network.channel_id
-        )
+        await cls.api.send(response, cls.api.network.channel_id)

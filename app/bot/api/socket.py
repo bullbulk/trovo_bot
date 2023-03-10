@@ -21,14 +21,7 @@ class Timer:
     async def loop(self):
         while True:
             await asyncio.sleep(self.gap)
-            await self.socket.send(
-                json.dumps(
-                    {
-                        "type": "PING",
-                        "nonce": "nonce"
-                    }
-                )
-            )
+            await self.socket.send(json.dumps({"type": "PING", "nonce": "nonce"}))
 
     def stop(self):
         if hasattr(self, "_task"):
@@ -55,9 +48,7 @@ class ChatSocketProtocol(WebSocketClientProtocol):
                 {
                     "type": "AUTH",
                     "nonce": "nonce",
-                    "data": {
-                        "token": await self.network.get_chat_token()
-                    }
+                    "data": {"token": await self.network.get_chat_token()},
                 }
             )
         )

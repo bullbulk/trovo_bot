@@ -27,27 +27,17 @@ class Api:
         self.ready = True
 
     async def get_user_info(self):
-        return await self.network.get(
-            "/getuserinfo"
-        )
+        return await self.network.get("/getuserinfo")
 
     async def get_users(self, nicknames: list[str]):
-        return await self.network.post(
-            "/getusers",
-            json={"user": nicknames}
-        )
+        return await self.network.post("/getusers", json={"user": nicknames})
 
     async def send(self, content: str, channel_id: int = None):
-        data = {
-            "content": content
-        }
+        data = {"content": content}
         if channel_id:
             data["channel_id"] = channel_id
 
-        return await self.network.post(
-            "/chat/send",
-            json=data
-        )
+        return await self.network.post("/chat/send", json=data)
 
     async def delete(self, channel_id: int, message_id: str, user_id: int):
         return await self.network.delete(
@@ -58,9 +48,5 @@ class Api:
         command = command.removeprefix("/")
 
         return await self.network.post(
-            "/channels/command",
-            json={
-                "command": command,
-                "channel_id": channel_id
-            }
+            "/channels/command", json={"command": command, "channel_id": channel_id}
         )

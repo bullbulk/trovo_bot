@@ -7,18 +7,21 @@ from app.api.deps import get_db
 from app.config import settings
 from app.core.config import set_config, get_config
 from .statuses import (
-    INVALID_ACCESS_TOKEN, 
+    INVALID_ACCESS_TOKEN,
     INVALID_REFRESH_TOKEN,
     EXPIRED_ACCESS_TOKEN,
-    EXPIRED_REFRESH_TOKEN
+    EXPIRED_REFRESH_TOKEN,
 )
 
 
 scopes = [
-    "user_details_self", "channel_details_self",
-    "channel_update_self", "channel_subscriptions",
-    "chat_send_self", "send_to_my_channel",
-    "manage_messages"
+    "user_details_self",
+    "channel_details_self",
+    "channel_update_self",
+    "channel_subscriptions",
+    "chat_send_self",
+    "send_to_my_channel",
+    "manage_messages",
 ]
 
 
@@ -36,7 +39,7 @@ class NetworkManager:
         self.channel_id = 0
 
     async def get_chat_token(self):
-        channel_nickname = get_config(self.get_db(), 'trovo_channel_nickname')
+        channel_nickname = get_config(self.get_db(), "trovo_channel_nickname")
         if not channel_nickname:
             return
 
@@ -51,10 +54,7 @@ class NetworkManager:
         return data["token"]
 
     async def update_channel_id(self, nickname: str):
-        request = await self.post(
-            "/getusers",
-            json={"user": [nickname]}
-        )
+        request = await self.post("/getusers", json={"user": [nickname]})
 
         data = await request.json()
         users = data.get("users", [{}])
@@ -72,7 +72,7 @@ class NetworkManager:
                 "client_secret": settings.TROVO_CLIENT_SECRET,
                 "grant_type": "authorization_code",
                 "code": code,
-                "redirect_uri": f"{settings.SERVER_HOST}{settings.API_V1_STR}/bot/oauth"
+                "redirect_uri": f"{settings.SERVER_HOST}{settings.API_V1_STR}/bot/oauth",
             },
         )
         data = await request.json()
@@ -89,17 +89,18 @@ class NetworkManager:
             "Accept": "application/json",
             "Content-Type": "application/json",
             "Client-Id": settings.TROVO_CLIENT_ID,
-            "Authorization": f"OAuth {self.access_token}"
+            "Authorization": f"OAuth {self.access_token}",
         }
 
     @staticmethod
     def generate_oauth_uri():
-        return \
-            f"https://open.trovo.live/page/login.html" \
-            f"?client_id={settings.TROVO_CLIENT_ID}" \
-            f"&response_type=code" \
-            f"&scope={'+'.join(scopes)}" \
+        return (
+            f"https://open.trovo.live/page/login.html"
+            f"?client_id={settings.TROVO_CLIENT_ID}"
+            f"&response_type=code"
+            f"&scope={'+'.join(scopes)}"
             f"&redirect_uri={settings.SERVER_HOST}/api/v1/bot/oauth"
+        )
 
     async def refresh(self):
         refresh_token = get_config(self.get_db(), "refresh_token")

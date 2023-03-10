@@ -26,7 +26,7 @@ router = APIRouter()
 
 @router.post("/login/", response_model=schemas.TokenPair)
 def login_access_token(
-        db: Session = Depends(deps.get_db), form_data: OAuth2PasswordRequestForm = Depends()
+    db: Session = Depends(deps.get_db), form_data: OAuth2PasswordRequestForm = Depends()
 ) -> Any:
     """
     OAuth2 compatible token login, get an access token for future requests with password
@@ -47,10 +47,7 @@ def login_access_token(
 
 
 @router.post("/refresh/", response_model=schemas.TokenPair)
-def refresh(
-        refresh_token: str,
-        db: Session = Depends(deps.get_db)
-) -> Any:
+def refresh(refresh_token: str, db: Session = Depends(deps.get_db)) -> Any:
     """
     OAuth2 compatible token login, get an access token for future requests with refresh token
     """
@@ -111,9 +108,9 @@ def recover_password(email: str, db: Session = Depends(deps.get_db)) -> Any:
 
 @router.post("/reset-password/", response_model=schemas.Msg)
 def reset_password(
-        token: str = Body(...),
-        new_password: str = Body(...),
-        db: Session = Depends(deps.get_db),
+    token: str = Body(...),
+    new_password: str = Body(...),
+    db: Session = Depends(deps.get_db),
 ) -> Any:
     """
     Reset password

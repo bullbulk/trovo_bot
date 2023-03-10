@@ -17,7 +17,9 @@ from .socket import ChatSocketProtocol
 
 WEBSOCKET_PROTOCOL_CLASS = ChatSocketProtocol
 
-AsyncMessageCallback = TypeVar("AsyncMessageCallback", bound=Callable[[Message], Awaitable[None]])
+AsyncMessageCallback = TypeVar(
+    "AsyncMessageCallback", bound=Callable[[Message], Awaitable[None]]
+)
 
 
 class ChatHandler:
@@ -62,8 +64,10 @@ class ChatHandler:
         logger.info("Connecting")
 
         self.socket = await websockets.connect(
-            settings.TROVO_WEBSOCKET_HOST, create_protocol=WEBSOCKET_PROTOCOL_CLASS,
-            ping_interval=None, ping_timeout=None,
+            settings.TROVO_WEBSOCKET_HOST,
+            create_protocol=WEBSOCKET_PROTOCOL_CLASS,
+            ping_interval=None,
+            ping_timeout=None,
         )
         self.listener_task = asyncio.create_task(self.listen())
         self.socket.set_network_manager(self.network)

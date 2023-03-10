@@ -16,7 +16,7 @@ class CubeCommand(CommandBase):
             if target.lower() in ["fedorbot2", "fedorbot"]:
                 await cls.api.send(
                     f"@{message.nick_name} анус свой отпежь, пёс",
-                    cls.api.network.channel_id
+                    cls.api.network.channel_id,
                 )
                 return
 
@@ -29,39 +29,37 @@ class CubeCommand(CommandBase):
 
         except IndexError:
             await cls.api.send(
-                "Использование: !отпежить <никнейм>",
-                cls.api.network.channel_id
+                "Использование: !отпежить <никнейм>", cls.api.network.channel_id
             )
             return
 
-        dice_amount = db.query(DiceAmount).filter(DiceAmount.user_id == message.sender_id).first()
+        dice_amount = (
+            db.query(DiceAmount).filter(DiceAmount.user_id == message.sender_id).first()
+        )
 
-        if dice_amount:
-            dice_amount_num = dice_amount.amount
-        else:
-            dice_amount_num = 0
-
+        dice_amount_num = dice_amount.amount if dice_amount else 0
         if dice_amount_num < amount:
             await cls.api.send(
                 f"@{message.nick_name} у тебя недостаточно кубов",
-                cls.api.network.channel_id
+                cls.api.network.channel_id,
             )
             return
 
         dices_results = {}
 
-        for i in range(amount):
+        for _ in range(amount):
             result = randint(1, 6)
             if dices_results.get(result):
                 dices_results[result] += 1
             else:
                 dices_results[result] = 1
 
-        success_dices_num = sum([y for x, y in dices_results.items() if x > 3])
+        success_dices_num = sum(y for x, y in dices_results.items() if x > 3)
         result_str = ", ".join(
-            [f"{x} ({y} шт.)" for x, y in sorted(
-                dices_results.items(), key=lambda v: v[0]
-            )]
+            [
+                f"{x} ({y} шт.)"
+                for x, y in sorted(dices_results.items(), key=lambda v: v[0])
+            ]
         )
 
         subtract_cubes = False
@@ -69,15 +67,14 @@ class CubeCommand(CommandBase):
         if not success_dices_num:
             await cls.api.send(
                 f"@{message.nick_name} результат: {result_str}, {target} выживает",
-                cls.api.network.channel_id
+                cls.api.network.channel_id,
             )
             subtract_cubes = True
         else:
             ban_seconds = success_dices_num * 600
 
             data = await cls.api.command(
-                f"ban {target} {ban_seconds}",
-                cls.api.network.channel_id
+                f"ban {target} {ban_seconds}", cls.api.network.channel_id
             )
             data = await data.json()
 
@@ -85,7 +82,7 @@ class CubeCommand(CommandBase):
                 await cls.api.send(
                     f"@{message.nick_name} результат: {result_str}, "
                     f"{target} отлетает на {ban_seconds // 60} минут",
-                    cls.api.network.channel_id
+                    cls.api.network.channel_id,
                 )
                 subtract_cubes = True
             else:
@@ -94,7 +91,7 @@ class CubeCommand(CommandBase):
                     f"{target} должен был отлететь на {ban_seconds // 60} минут, "
                     f"но при мьюте произошла ошибка. "
                     f"Возможно, ты неправильно написал ник или пользователь уже в бане",
-                    cls.api.network.channel_id
+                    cls.api.network.channel_id,
                 )
 
         if subtract_cubes:
@@ -125,18 +122,22 @@ class BalanceCommand(CommandBase):
         if not target_id:
             target_id = message.sender_id
 
-        dice_amount = db.query(DiceAmount).filter(DiceAmount.user_id == target_id).first()
-        if dice_amount:
+        if (
+            dice_amount := db.query(DiceAmount)
+            .filter(DiceAmount.user_id == target_id)
+            .first()
+        ):
             result_amount = dice_amount.amount
         else:
             result_amount = 0
 
         if target_id == message.sender_id:
-            response_message = f"@{message.nick_name} кубов у тебя на счету: {result_amount}"
+            response_message = (
+                f"@{message.nick_name} кубов у тебя на счету: {result_amount}"
+            )
         else:
-            response_message = f"@{message.nick_name} кубов на счету у {target}: {result_amount}"
+            response_message = (
+                f"@{message.nick_name} кубов на счету у {target}: {result_amount}"
+            )
 
-        await cls.api.send(
-            response_message,
-            cls.api.network.channel_id
-        )
+        await cls.api.send(response_message, cls.api.network.channel_id)

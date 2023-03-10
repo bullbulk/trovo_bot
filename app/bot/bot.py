@@ -49,19 +49,19 @@ class Bot:
     async def process_mana_spell(self, message: Message):
         total_mana = message.content["num"] * message.content["gift_value"]
 
-        if total_mana >= 99999:
-            if "ОМНОМНОМ" not in message.roles:
-                await self.api.command(
-                    f"addrole ОМНОМНОМ {message.nick_name}",
-                    self.api.network.channel_id
-                )
+        if total_mana >= 99999 and "ОМНОМНОМ" not in message.roles:
+            await self.api.command(
+                f"addrole ОМНОМНОМ {message.nick_name}", self.api.network.channel_id
+            )
 
     async def process_dice_spell(self, message: Message):
         num = message.content["num"]
 
         db = self.get_db()
 
-        dice_amount = db.query(DiceAmount).filter(DiceAmount.user_id == message.sender_id).first()
+        dice_amount = (
+            db.query(DiceAmount).filter(DiceAmount.user_id == message.sender_id).first()
+        )
         if not dice_amount:
             dice_amount = DiceAmount(user_id=message.sender_id, amount=num)
         else:
@@ -73,10 +73,7 @@ class Bot:
 
     async def process_message(self, message: Message):
         if "+ в чат" in message.content.lower():
-            await self.api.send(
-                "+",
-                self.api.network.channel_id
-            )
+            await self.api.send("+", self.api.network.channel_id)
 
         if message.content.startswith("!"):
             await self.process_command(message)
