@@ -7,6 +7,8 @@ class HelpCommand(CommandBase):
 
     @classmethod
     async def handle(cls, parts, message, db):
+        await super().handle(parts, message, db)
+
         response = f"Команды: {', '.join(sorted(list(get_commands().keys())))}"
 
         await cls.api.send(response, cls.api.network.channel_id)

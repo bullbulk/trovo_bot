@@ -6,12 +6,16 @@ from app.api.deps import get_db
 from app.bot.api import Api
 from app.bot.api.schemas import Message
 from .interface import CommandInterface
+from ...errors import CommandDisabled
 
 
 class CommandBase(CommandInterface):
+    disabled = False
+
     @classmethod
     async def handle(cls, parts: list[str], message: Message, db: Session):
-        pass
+        if cls.disabled:
+            raise CommandDisabled
 
     @classmethod
     async def process(cls, parts: list[str], message: Message):

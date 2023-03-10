@@ -1,0 +1,2 @@
+class CommandDisabled(Exception):
+    pass

@@ -10,6 +10,8 @@ class CubeCommand(CommandBase):
 
     @classmethod
     async def handle(cls, parts, message, db):
+        await super().handle(parts, message, db)
+
         try:
             target = parts[1]
             target = target.removeprefix("@")
@@ -107,6 +109,8 @@ class BalanceCommand(CommandBase):
 
     @classmethod
     async def handle(cls, parts, message, db):
+        await super().handle(parts, message, db)
+
         target_id = None
         target = None
 
