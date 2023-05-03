@@ -1,7 +1,7 @@
 from random import randint
 
+from app import crud
 from app.bot.commands import as_command, CommandBase
-from app.models import DiceAmount
 
 
 @as_command
@@ -35,11 +35,9 @@ class CubeCommand(CommandBase):
             )
             return
 
-        dice_amount = (
-            db.query(DiceAmount).filter(DiceAmount.user_id == message.sender_id).first()
-        )
+        dice_amount = crud.dice_amount.get_by_owner(db, user_id=message.sender_id)
 
-        dice_amount_num = dice_amount.amount if dice_amount else 0
+        dice_amount_num = getattr(dice_amount, "amount", 0)
         if dice_amount_num < amount:
             await cls.api.send(
                 f"@{message.nick_name} у тебя недостаточно кубов",
@@ -47,14 +45,7 @@ class CubeCommand(CommandBase):
             )
             return
 
-        dices_results = {}
-
-        for _ in range(amount):
-            result = randint(1, 6)
-            if dices_results.get(result):
-                dices_results[result] += 1
-            else:
-                dices_results[result] = 1
+        dices_results = calc_dices_result(amount)
 
         success_dices_num = sum(y for x, y in dices_results.items() if x > 3)
         result_str = ", ".join(
@@ -97,51 +88,17 @@ class CubeCommand(CommandBase):
                 )
 
         if subtract_cubes:
-            dice_amount.amount -= amount
-            db.add(dice_amount)
-            db.commit()
-            db.refresh(dice_amount)
+            crud.dice_amount.subtract(db, db_obj=dice_amount, amount=amount)
 
 
-@as_command
-class BalanceCommand(CommandBase):
-    name = "баланс"
+def calc_dices_result(amount: int) -> dict[int, int]:
+    dices_result = {}
 
-    @classmethod
-    async def handle(cls, parts, message, db):
-        await super().handle(parts, message, db)
-
-        target_id = None
-        target = None
-
-        if len(parts) > 1:
-            target = parts[1].removeprefix("@")
-            if target not in ["fedorbot", "fedorbot2"]:
-                request = await cls.api.get_users([target])
-                data = await request.json()
-
-                users = data.get("users", [{}])
-                target_id = users[0].get("channel_id")
-
-        if not target_id:
-            target_id = message.sender_id
-
-        if (
-            dice_amount := db.query(DiceAmount)
-            .filter(DiceAmount.user_id == target_id)
-            .first()
-        ):
-            result_amount = dice_amount.amount
+    for _ in range(amount):
+        result = randint(1, 6)
+        if dices_result.get(result):
+            dices_result[result] += 1
         else:
-            result_amount = 0
+            dices_result[result] = 1
 
-        if target_id == message.sender_id:
-            response_message = (
-                f"@{message.nick_name} кубов у тебя на счету: {result_amount}"
-            )
-        else:
-            response_message = (
-                f"@{message.nick_name} кубов на счету у {target}: {result_amount}"
-            )
-
-        await cls.api.send(response_message, cls.api.network.channel_id)
+    return dices_result

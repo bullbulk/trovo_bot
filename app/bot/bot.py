@@ -6,12 +6,14 @@ from app.api.deps import get_db
 from app.models import DiceAmount
 from .api import Api
 from .api.schemas import Message, MessageType
-from .commands import get_commands, CommandBase, CommandInstance
+from .commands import get_commands, CommandBase, CommandInstance, MassCubeCommand
 
 
 class Bot:
     def __init__(self):
         self.api = Api()
+        self.db = self.get_db()
+
         CommandBase.set_api(self.api)
 
         self.commands: dict[str, CommandInstance] = get_commands()
@@ -72,6 +74,8 @@ class Bot:
         db.close()
 
     async def process_message(self, message: Message):
+        asyncio.create_task(MassCubeCommand.handle_message(message, self.db))
+
         if "+ в чат" in message.content.lower():
             await self.api.send("+", self.api.network.channel_id)
 

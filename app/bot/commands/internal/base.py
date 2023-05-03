@@ -6,7 +6,7 @@ from app.api.deps import get_db
 from app.bot.api import Api
 from app.bot.api.schemas import Message
 from .interface import CommandInterface
-from ...errors import CommandDisabled
+from ...exceptions import CommandDisabled
 
 
 class CommandBase(CommandInterface):

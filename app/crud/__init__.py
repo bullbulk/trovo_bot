@@ -1,3 +1,4 @@
+from .crud_bot import dice_amount, mass_dice_entry, mass_ban_record
 from .crud_item import item
 from .crud_user import user
 

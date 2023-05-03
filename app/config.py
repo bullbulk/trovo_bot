@@ -61,9 +61,7 @@ class Settings(BaseSettings):
 
     @validator("EMAILS_FROM_NAME")
     def get_project_name(cls, v: str | None, values: dict[str, Any]) -> str:  # noqa
-        if not v:
-            return values["PROJECT_NAME"]
-        return v
+        return v or values["PROJECT_NAME"]
 
     EMAIL_RESET_TOKEN_EXPIRE_HOURS: int = 48
     EMAIL_TEMPLATES_DIR: str = "email-templates/build"
