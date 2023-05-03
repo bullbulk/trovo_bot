@@ -48,7 +48,7 @@ class MassCubeCommand(CommandBase):
 
         except IncorrectUsage:
             await cls.api.send(
-                "Использование: !отчикрыжить @<название роли> <количество> [триггер текст]",
+                "Использование: !отчикрыжить <@название роли | * - все> <количество> [триггер текст]",
                 cls.api.network.channel_id,
             )
             return
