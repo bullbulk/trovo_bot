@@ -85,6 +85,10 @@ class Message(BaseModel):
         except JSONDecodeError:
             return v
 
+    @validator("roles", pre=True)
+    def validate_roles(cls, v): # noqa
+        return list(map(str.lower, v))
+
 
 class WebSocketMessageData(BaseModel):
     eid: str
