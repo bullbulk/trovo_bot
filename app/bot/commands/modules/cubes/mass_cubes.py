@@ -101,7 +101,7 @@ class MassCubeCommand(CommandBase):
             )
 
             crud.dice_amount.subtract(
-                db, db_obj=dice_amount, amount=dice_amount.amount - amount
+                db, db_obj=dice_amount, amount=amount
             )
             crud.mass_dice_entry.create(
                 db,
