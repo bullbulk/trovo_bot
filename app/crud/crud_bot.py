@@ -13,7 +13,7 @@ class CRUDDiceAmount(CRUDBase[models.DiceAmount, CreateSchemaType, UpdateSchemaT
         db_obj: DiceAmount,
         amount: int,
     ) -> DiceAmount:
-        return super().update(db, db_obj=db_obj, obj_in={"amount": amount})
+        return super().update(db, db_obj=db_obj, obj_in={"amount": db_obj.amount - amount})
 
     def get_by_owner(self, db: Session, *, user_id: int) -> DiceAmount | None:
         return db.query(self.model).filter(DiceAmount.user_id == user_id).first()
