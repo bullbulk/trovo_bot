@@ -25,7 +25,7 @@ class BalanceCommand(CommandBase):
         if not target_id:
             target_id = message.sender_id
 
-        dice_amount = crud.dice_amount.get_by_owner(db, user_id=message.sender_id)
+        dice_amount = crud.dice_amount.get_by_owner(db, user_id=target_id)
         result_amount = getattr(dice_amount, "amount", 0)
 
         if target_id == message.sender_id:
