@@ -84,6 +84,7 @@ class Settings(BaseSettings):
     TROVO_WEBSOCKET_HOST: AnyUrl = "wss://open-chat.trovo.live/chat"
     TROVO_CLIENT_ID: str
     TROVO_CLIENT_SECRET: str
+    TROVO_OWNER_ID: int
 
     class Config:
         case_sensitive = True

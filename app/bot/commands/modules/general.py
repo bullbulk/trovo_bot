@@ -16,3 +16,21 @@ class HosepCommand(CommandBase):
             message = message.upper()
 
         await cls.api.send(message, cls.api.network.channel_id)
+
+
+@as_command
+class InvokeCommand(CommandBase):
+    name = "invoke"
+    moderator_only = True
+
+    @classmethod
+    async def handle(cls, parts: list[str], message, db):
+        await super().handle(parts, message, db)
+
+        args = parts[1:]
+
+        result = await cls.api.command(
+            command=" ".join(args), channel_id=cls.api.network.channel_id
+        )
+        data = await result.json()
+        await cls.api.send(data["display_msg"], cls.api.network.channel_id)
