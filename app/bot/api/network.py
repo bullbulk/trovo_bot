@@ -1,3 +1,4 @@
+import contextlib
 from json import JSONDecodeError
 
 from aiohttp import ClientSession, ContentTypeError
@@ -138,23 +139,20 @@ class NetworkManager:
     @staticmethod
     def prepare_url(url: str):
         if not url.startswith("/"):
-            url = "/" + url
+            url = f"/{url}"
         return url
 
     async def get(self, url: str, **kwargs):
         async with ClientSession() as session:
-            res = await self.request(session, "GET", url, **kwargs)
-            return res
+            return await self.request(session, "GET", url, **kwargs)
 
     async def post(self, url: str, **kwargs):
         async with ClientSession() as session:
-            res = await self.request(session, "POST", url, **kwargs)
-            return res
+            return await self.request(session, "POST", url, **kwargs)
 
     async def delete(self, url: str, **kwargs):
         async with ClientSession() as session:
-            res = await self.request(session, "DELETE", url, **kwargs)
-            return res
+            return await self.request(session, "DELETE", url, **kwargs)
 
     async def request(self, session: ClientSession, method: str, url: str, **kwargs):
         if not url.startswith("http"):
@@ -169,7 +167,7 @@ class NetworkManager:
 
         logger.info(await res.text())
 
-        try:
+        with contextlib.suppress(JSONDecodeError, ContentTypeError):
             data = await res.json()
 
             if data.get("status") in (INVALID_ACCESS_TOKEN, EXPIRED_ACCESS_TOKEN):
@@ -178,8 +176,5 @@ class NetworkManager:
             elif data.get("status") in (INVALID_REFRESH_TOKEN, EXPIRED_REFRESH_TOKEN):
                 self.ready = False
                 raise AuthError()
-
-        except (JSONDecodeError, ContentTypeError):
-            pass
 
         return res

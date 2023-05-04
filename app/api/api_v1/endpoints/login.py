@@ -56,11 +56,11 @@ def refresh(refresh_token: str, db: Session = Depends(deps.get_db)) -> Any:
             refresh_token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
         )
         token_data = schemas.TokenPayload(**payload)
-    except (jwt.PyJWTError, ValidationError):
+    except (jwt.PyJWTError, ValidationError) as e:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",
-        )
+        ) from e
 
     if token_data.scope.value != TokenScope.REFRESH.value:
         raise HTTPException(
@@ -68,15 +68,14 @@ def refresh(refresh_token: str, db: Session = Depends(deps.get_db)) -> Any:
             detail="Could not validate credentials",
         )
 
-    user = crud.user.get(db, id_=token_data.sub)
-    if not user:
+    if user := crud.user.get(db, id_=token_data.sub):
+        return {
+            "access_token": security.create_access_token(user.id),
+            "refresh_token": security.create_refresh_token(user.id),
+            "token_type": "bearer",
+        }
+    else:
         raise HTTPException(status_code=404, detail="User not found")
-
-    return {
-        "access_token": security.create_access_token(user.id),
-        "refresh_token": security.create_refresh_token(user.id),
-        "token_type": "bearer",
-    }
 
 
 @router.post("/login/test-token", response_model=schemas.User)

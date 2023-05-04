@@ -80,7 +80,7 @@ class ChatHandler:
             async for message in self.socket:
                 try:
                     data = WebSocketMessage(**json.loads(message))
-                except ValidationError as e:
+                except ValidationError:
                     logger.error(traceback.format_exc())
                     continue
 
@@ -107,7 +107,7 @@ class ChatHandler:
             self.running = False
             try:
                 return await self.connect()
-            except:  # noqa
+            except Exception:
                 logger.error("Unable to connect")
         except Exception:
             logger.error(traceback.format_exc())
