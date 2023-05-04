@@ -132,6 +132,7 @@ class MassCubeCommand(CommandBase):
             if role not in grouped_entries:
                 grouped_entries[role] = []
             grouped_entries[role].append(entry)
+            db.expunge(entry)
 
         cls.active_entries = grouped_entries
 
