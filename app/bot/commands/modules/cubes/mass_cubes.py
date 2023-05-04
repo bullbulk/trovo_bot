@@ -108,7 +108,6 @@ class MassCubeCommand(CommandBase):
                 cls.api.network.channel_id,
             )
 
-            crud.dice_amount.subtract(db, db_obj=dice_amount, amount=amount)
             crud.mass_dice_entry.create(
                 db,
                 obj_in=schemas.MassDiceEntry(
@@ -120,6 +119,8 @@ class MassCubeCommand(CommandBase):
                 ),
             )
             cls.update_active_entries(db)
+
+        crud.dice_amount.subtract(db, db_obj=dice_amount, amount=amount)
 
     @classmethod
     def update_active_entries(cls, db: Session):
@@ -198,7 +199,7 @@ class MassCubeCommand(CommandBase):
         )
         await cls.api.send(
             f"Отчикрыживание от @{entry.issuer_nickname}{target_role_text} окончено! @@ "
-            f"Потерпевшие ({len(banned_nicknames)}): {', '.join(banned_nicknames)}",
+            f"Потерпевшие ({len(banned_nicknames)}): {' '.join(banned_nicknames)}",
             cls.api.network.channel_id,
         )
 
