@@ -15,6 +15,9 @@ class CommandBase(CommandInterface):
     owner_only = False
     moderator_only = False
 
+    usage = ""
+    example = ""
+
     @classmethod
     async def handle(cls, parts: list[str], message: Message, db: Session):
         if cls.disabled:
@@ -24,7 +27,6 @@ class CommandBase(CommandInterface):
     async def process(cls, parts: list[str], message: Message):
         is_owner = message.sender_id == settings.TROVO_OWNER_ID
         if cls.owner_only and not is_owner:
-            print("unavailable")
             return
         if (
             cls.moderator_only
@@ -32,7 +34,6 @@ class CommandBase(CommandInterface):
             and "mod" not in message.roles
             and "streamer" not in message.roles
         ):
-            print("unavailable")
             return
         db = cls.get_db()
         try:
@@ -47,6 +48,15 @@ class CommandBase(CommandInterface):
     @staticmethod
     def get_db():
         return next(get_db())
+
+    @classmethod
+    def get_help(cls):
+        text = f"Команда !{cls.name} @@ {cls.__doc__}"
+        if cls.usage:
+            text += f" @@ Использование: {cls.usage} @@ (<> - обязательный, [] - необязательный аргумент)"
+        if cls.example:
+            text += f" @@ Пример использования: {cls.example}"
+        return text
 
 
 CommandInstance = TypeVar("CommandInstance", bound=CommandBase)

@@ -14,7 +14,15 @@ from app.models import MassDiceEntry, MassDiceBanRecord
 
 @as_command
 class MassCubeCommand(CommandBase):
+    """
+    Списать кубы со счёта и замьютить следующих выпавшее N-количество участников
+    чата по роли и/или тексту-триггеру на 10 минут
+    """
+
     name = "отчикрыжить"
+
+    usage = "!отчикрыжить <@название_роли или * (все участники)> <количество> [триггер текст]"
+    example = "!отчикрыжить @трипек 10 хочу бан | !отчикрыжить * 10 ПЕК ПЕК ПЕК"
 
     active_entries: dict[str, list[schemas.MassDiceEntry]] | None = None
 
@@ -48,7 +56,7 @@ class MassCubeCommand(CommandBase):
 
         except IncorrectUsage:
             await cls.api.send(
-                "Использование: !отчикрыжить <@название роли | * - все> <количество> [триггер текст]",
+                f"Использование: {cls.usage}",
                 cls.api.network.channel_id,
             )
             return
@@ -80,19 +88,19 @@ class MassCubeCommand(CommandBase):
 
         if not success_dices_num:
             await cls.api.send(
-                f"@{message.nick_name} решил отчикрыжить {target_members_text} | "
-                f"Увы, результат: {result_str} | "
+                f"@{message.nick_name} решил отчикрыжить {target_members_text} @@ "
+                f"Увы, результат: {result_str} @@ "
                 f"Всего: {success_dices_num}",
                 cls.api.network.channel_id,
             )
         else:
             begin_message = (
-                f"\n@{message.nick_name} решил отчикрыжить {target_members_text} | "
-                f"Результат: {result_str} | "
-                f"Всего: {success_dices_num} | "
+                f"\n@{message.nick_name} решил отчикрыжить {target_members_text} @@ "
+                f"Результат: {result_str} @@ "
+                f"Всего: {success_dices_num} @@ "
             )
             if trigger_text:
-                begin_message += f'Триггер: "{trigger_text}" | '
+                begin_message += f'Триггер: "{trigger_text}" @@ '
             begin_message += "Да начнётся жатва!"
 
             await cls.api.send(
@@ -100,9 +108,7 @@ class MassCubeCommand(CommandBase):
                 cls.api.network.channel_id,
             )
 
-            crud.dice_amount.subtract(
-                db, db_obj=dice_amount, amount=amount
-            )
+            crud.dice_amount.subtract(db, db_obj=dice_amount, amount=amount)
             crud.mass_dice_entry.create(
                 db,
                 obj_in=schemas.MassDiceEntry(
@@ -191,7 +197,7 @@ class MassCubeCommand(CommandBase):
             f' на роль "{entry.target_role}"' if entry.target_role else ""
         )
         await cls.api.send(
-            f"Отчикрыживание от @{entry.issuer_nickname}{target_role_text} окончено! | "
+            f"Отчикрыживание от @{entry.issuer_nickname}{target_role_text} окончено! @@ "
             f"Потерпевшие ({len(banned_nicknames)}): {', '.join(banned_nicknames)}",
             cls.api.network.channel_id,
         )

@@ -20,8 +20,13 @@ class HosepCommand(CommandBase):
 
 @as_command
 class InvokeCommand(CommandBase):
+    """Выполнить команду от имени бота. Доступно только пользователям с ролью "модератор" и выше"""
+
     name = "invoke"
     moderator_only = True
+
+    usage = "!invoke <имя команды> [*аргументы]"
+    example = "!invoke ban bullbulk 30"
 
     @classmethod
     async def handle(cls, parts: list[str], message, db):

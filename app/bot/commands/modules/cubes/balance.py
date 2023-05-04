@@ -4,7 +4,12 @@ from app.bot.commands import as_command, CommandBase
 
 @as_command
 class BalanceCommand(CommandBase):
+    """Получить количество кубов на балансе. Кубы можно получить за отправку спелла MrCube"""
+
     name = "баланс"
+
+    usage = "!баланс [@никнейм]"
+    example = "!баланс @bullbulk | !баланс (получить свой баланс)"
 
     @classmethod
     async def handle(cls, parts, message, db):

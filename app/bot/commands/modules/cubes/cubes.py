@@ -6,7 +6,12 @@ from app.bot.commands import as_command, CommandBase
 
 @as_command
 class CubeCommand(CommandBase):
+    """Списать кубы со счёта и замьютить пользоватея на выпавшее количество десятков минут"""
+
     name = "отпежить"
+
+    usage = "!отпежить <@никнейм> [количество]"
+    example = "!отпежить @bullbulk 10 | !отпежить @bullbulk (кинет 1 куб) "
 
     @classmethod
     async def handle(cls, parts, message, db):
@@ -31,7 +36,7 @@ class CubeCommand(CommandBase):
 
         except IndexError:
             await cls.api.send(
-                "Использование: !отпежить <никнейм>", cls.api.network.channel_id
+                f"Использование: {cls.usage}", cls.api.network.channel_id
             )
             return
 
