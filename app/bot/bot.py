@@ -76,7 +76,7 @@ class Bot:
     async def process_message(self, message: Message):
         asyncio.create_task(MassCubeCommand.handle_message(message, self.db))
 
-        if "+ в чат" in message.content.lower():
+        if "+ в ча" in message.content.lower():
             await self.api.send("+", self.api.network.channel_id)
 
         if message.content.startswith("!"):
