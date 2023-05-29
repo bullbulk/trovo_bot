@@ -1,5 +1,6 @@
 import logging
 
+import loguru
 from loguru import logger
 
 
@@ -25,5 +26,5 @@ class InterceptHandler(logging.Handler):
 def init():
     logger.add("log/main.log")
 
-    logging.getLogger().handlers.append(InterceptHandler())
+    logging.getLogger().handlers.append(InterceptHandler(level="INFO"))
     logging.getLogger("uvicorn.access").handlers.append(InterceptHandler())
