@@ -75,27 +75,23 @@ class ChatHandler:
         self.start_timestamp = datetime.now().timestamp()
         self.running = True
 
+        logger.info("Connected")
+
     async def listen(self):
         try:
             async for message in self.socket:
-                try:
-                    data = WebSocketMessage(**json.loads(message))
-                except ValidationError:
-                    logger.error(traceback.format_exc())
-                    continue
-
-                if data.type == WebSocketMessageType.PONG:
-                    if gap := data.data.get("gap"):
+                if message.type == WebSocketMessageType.PONG:
+                    if gap := message.data.get("gap"):
                         self.socket.set_ping_gap(gap)
 
-                if data.type != WebSocketMessageType.CHAT:
+                if message.type != WebSocketMessageType.CHAT:
                     continue
 
-                if isinstance(data.data, dict):
-                    logger.warning(message)
+                if isinstance(message.data, dict):
+                    logger.warning(message.origin_string)
                     continue
 
-                for chat in data.data.chats:
+                for chat in message.data.chats:
                     if chat.send_time.timestamp() < self.start_timestamp:
                         continue
 

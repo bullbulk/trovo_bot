@@ -86,7 +86,7 @@ class Message(BaseModel):
             return v
 
     @validator("roles", pre=True)
-    def validate_roles(cls, v): # noqa
+    def validate_roles(cls, v):  # noqa
         return list(map(str.lower, v))
 
 
@@ -108,6 +108,8 @@ class WebSocketMessageType(Enum):
 
 
 class WebSocketMessage(BaseModel):
+    origin_string: str
+
     type: WebSocketMessageType
     channel_info: ChannelInfo | None
     data: WebSocketMessageData | dict[str, Any] = {}

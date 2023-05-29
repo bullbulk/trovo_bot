@@ -1,11 +1,13 @@
 import logging
-from datetime import datetime, timedelta
+import random
+import string
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
 import emails
-from emails.template import JinjaTemplate
 import jwt
+from emails.template import JinjaTemplate
 
 from app.config import settings
 
@@ -92,15 +94,14 @@ def send_new_account_email(email_to: str, username: str, password: str) -> None:
 
 def generate_password_reset_token(email: str) -> str:
     delta = timedelta(hours=settings.EMAIL_RESET_TOKEN_EXPIRE_HOURS)
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     expires = now + delta
     exp = expires.timestamp()
-    encoded_jwt = jwt.encode(
+    return jwt.encode(
         {"exp": exp, "nbf": now, "sub": email},
         settings.SECRET_KEY,
         algorithm="HS256",
     )
-    return encoded_jwt
 
 
 def verify_password_reset_token(token: str) -> Optional[str]:
@@ -109,3 +110,7 @@ def verify_password_reset_token(token: str) -> Optional[str]:
         return decoded_token["email"]
     except jwt.PyJWTError:
         return
+
+
+def get_rand_string(length=16, characters=string.ascii_letters + string.digits):
+    return "".join(random.choice(characters) for _ in range(length))
