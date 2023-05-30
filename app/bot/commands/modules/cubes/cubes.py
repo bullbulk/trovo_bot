@@ -1,7 +1,6 @@
-from random import randint
-
 from app import crud
 from app.bot.commands import as_command, CommandBase
+from app.bot.utils import calc_dices_result
 
 
 @as_command
@@ -50,7 +49,7 @@ class CubeCommand(CommandBase):
             )
             return
 
-        dices_results = calc_dices_result(amount)
+        dices_results = await calc_dices_result(amount)
 
         success_dices_num = sum(y for x, y in dices_results.items() if x > 3)
         result_str = ", ".join(
@@ -94,16 +93,3 @@ class CubeCommand(CommandBase):
 
         if subtract_cubes:
             crud.dice_amount.subtract(db, db_obj=dice_amount, amount=amount)
-
-
-def calc_dices_result(amount: int) -> dict[int, int]:
-    dices_result = {}
-
-    for _ in range(amount):
-        result = randint(1, 6)
-        if dices_result.get(result):
-            dices_result[result] += 1
-        else:
-            dices_result[result] = 1
-
-    return dices_result

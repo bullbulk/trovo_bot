@@ -16,3 +16,5 @@ loguru~=0.6.0
 python-dotenv~=0.21.0
 python-multipart~=0.0.5
 uvicorn
+
+numpy~=1.24.3

@@ -1,5 +1,4 @@
 import asyncio
-from random import randint
 
 from sqlalchemy import insert
 from sqlalchemy.orm import Session
@@ -9,6 +8,7 @@ from app import schemas
 from app.bot.api.schemas import Message
 from app.bot.commands import as_command, CommandBase
 from app.bot.exceptions import IncorrectUsage
+from app.bot.utils import calc_dices_result
 from app.models import MassDiceEntry, MassDiceBanRecord
 
 
@@ -46,7 +46,7 @@ class MassCubeCommand(CommandBase):
                     cls.api.network.channel_id,
                 )
                 return
-            if target_role == "*":
+            elif target_role == "*":
                 target_role = None
 
             if amount.isnumeric():
@@ -71,7 +71,7 @@ class MassCubeCommand(CommandBase):
             )
             return
 
-        dices_results = calc_dices_result(amount)
+        dices_results = await calc_dices_result(amount)
 
         success_dices_num = sum(y for x, y in dices_results.items() if x > 3)
         result_str = ", ".join(
@@ -206,16 +206,3 @@ class MassCubeCommand(CommandBase):
             f"Потерпевшие ({len(banned_nicknames)}): {' '.join(banned_nicknames)}",
             cls.api.network.channel_id,
         )
-
-
-def calc_dices_result(amount: int) -> dict[int, int]:
-    dices_result = {}
-
-    for _ in range(amount):
-        result = randint(1, 6)
-        if dices_result.get(result):
-            dices_result[result] += 1
-        else:
-            dices_result[result] = 1
-
-    return dices_result
