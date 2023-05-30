@@ -190,6 +190,7 @@ class MassCubeCommand(CommandBase):
 
         if ban_records:
             db.execute(insert(MassDiceBanRecord), ban_records)
+            db.commit()
 
     @classmethod
     async def finish_mass_entry(cls, entry: MassDiceEntry):
