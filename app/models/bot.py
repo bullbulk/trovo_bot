@@ -28,5 +28,6 @@ class MassDiceBanRecord(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column()
     user_nickname: Mapped[str] = mapped_column()
+    message: Mapped[str] = mapped_column(server_default="")
     entry_id: Mapped[int] = mapped_column(ForeignKey("mass_dice_entry.id"))
     entry: Mapped["MassDiceEntry"] = relationship(back_populates="records")

@@ -1,5 +1,4 @@
 import asyncio
-import json
 import traceback
 from asyncio import Task
 from datetime import datetime
@@ -7,12 +6,11 @@ from typing import Callable, Awaitable, TypeVar
 
 import websockets
 from loguru import logger
-from pydantic import ValidationError
 from websockets.exceptions import ConnectionClosedError
 
 from app.config import settings
 from .network import NetworkManager
-from .schemas import WebSocketMessage, Message, WebSocketMessageType
+from .schemas import Message, WebSocketMessageType
 from .socket import ChatSocketProtocol
 
 WEBSOCKET_PROTOCOL_CLASS = ChatSocketProtocol

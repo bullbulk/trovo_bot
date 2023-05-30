@@ -176,12 +176,14 @@ class MassCubeCommand(CommandBase):
                 db, db_obj=entry, amount=entry.amount - 1
             )
             cls.update_active_entries(db)
-            if entry.amount <= 0:
+            if entry.amount == 0:
                 asyncio.create_task(cls.finish_mass_entry(entry))
+
             ban_records.append(
                 dict(
                     user_id=message.sender_id,
                     user_nickname=message.nick_name,
+                    message=message.content,
                     entry_id=entry.id,
                 )
             )
