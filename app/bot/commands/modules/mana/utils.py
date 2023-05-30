@@ -84,15 +84,15 @@ async def get_rank_message(channel_id: int):
     ranks = await get_rocket_rank(channel_id)
     top_points = sorted([x.points for x in ranks.rank_list], reverse=True)
 
-    msg = f"Текущая позиция: {ranks.position.rank}. Очков: {ranks.position.points}. "
-    if ranks.position.rank <= 6:
-        msg += f"Отрыв от 7-го места: {ranks.get_offset(7)} очков."
+    msg = f"Текущая позиция: {ranks.position.rank}. Очков: {ranks.position.points:,}. "
+    if 0 < ranks.position.rank <= 6:
+        msg += f"Отрыв от 7-го места: {ranks.get_offset(7):,} очков."
     else:
-        msg += f"До 6-го места не хватает {abs(ranks.get_offset(6))} очков."
+        msg += f"До 6-го места не хватает {abs(ranks.get_offset(6)):,} очков."
 
     top_points_numbered = [
-        f"{index}. {item}" for index, item in enumerate(top_points, 1)
+        f"{index}. {item:,}" for index, item in enumerate(top_points, 1)
     ]
-    msg += f" Топ: {', '.join(top_points_numbered)}"
+    msg += f" Топ: {'; '.join(top_points_numbered)}"
 
     return msg
