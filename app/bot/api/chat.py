@@ -80,10 +80,6 @@ class ChatHandler:
     async def listen(self):
         try:
             async for message in self.socket:
-                if message.type == WebSocketMessageType.PONG:
-                    if gap := message.data.get("gap"):
-                        self.socket.set_ping_gap(gap)
-
                 if message.type != WebSocketMessageType.CHAT:
                     continue
 

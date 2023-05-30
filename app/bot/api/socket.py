@@ -27,6 +27,9 @@ class PingController:
     def start(self):
         self._task = asyncio.create_task(self.loop())
 
+    def set_ping_gap(self, gap: int):
+        self.gap = gap
+
     async def ping(self, type_="PING", **data):
         nonce = get_rand_string()
         await self.socket.send(json.dumps({"type": type_, "nonce": nonce, **data}))
@@ -54,6 +57,7 @@ class PingController:
     def stop(self):
         if hasattr(self, "_task"):
             self._task.cancel()
+        self.pings.clear()
 
     async def process_pong(self, message: WebSocketMessage):
         if ping_data := self.pings.get(message.nonce):
@@ -85,9 +89,6 @@ class ChatSocketProtocol(WebSocketClientProtocol):
             data={"token": await self.network.get_chat_token()},
         )
 
-    def set_ping_gap(self, gap: int):
-        self.ping_controller.gap = gap
-
     def set_network_manager(self, manager: NetworkManager):
         self.network = manager
 
@@ -104,6 +105,8 @@ class ChatSocketProtocol(WebSocketClientProtocol):
                 WebSocketMessageType.PONG,
                 WebSocketMessageType.RESPONSE,
             ):
+                if gap := data.data.get("gap"):
+                    self.ping_controller.set_ping_gap(gap)
                 await self.ping_controller.process_pong(data)
             return data
         except ValidationError:
