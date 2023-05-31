@@ -29,6 +29,22 @@ class Api:
     async def get_user_info(self):
         return await self.network.get("/getuserinfo")
 
+    async def get_channel_info(
+        self,
+        channel_id: int | None = None,
+        username: str | None = None,
+    ):
+        data = {}
+        if channel_id:
+            data["channel_id"] = channel_id
+        if username:
+            data["username"] = username
+
+        if not data:
+            raise ValueError("channel_id or username should be provided.")
+
+        return await self.network.post("/channels/id", json=data)
+
     async def get_users(self, nicknames: list[str]):
         return await self.network.post("/getusers", json={"user": nicknames})
 

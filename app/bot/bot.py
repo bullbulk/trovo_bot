@@ -1,5 +1,6 @@
 import asyncio
 
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from loguru import logger
 
 from app.api.deps import get_db
@@ -7,16 +8,18 @@ from app.models import DiceAmount
 from .api import Api
 from .api.schemas import Message, MessageType
 from .commands import get_commands, CommandBase, CommandInstance, MassCubeCommand
+from .commands.modules.mana.utils import get_rank_message
 
 
 class Bot:
     def __init__(self):
         self.api = Api()
         self.db = self.get_db()
+        self.scheduler = None
 
         CommandBase.set_api(self.api)
-
         self.commands: dict[str, CommandInstance] = get_commands()
+        self.setup_scheduler()
 
     async def run(self):
         while not self.api.ready:
@@ -24,6 +27,26 @@ class Bot:
 
         await self.api.chat.connect()
         self.api.chat.add_listener(self.listen)
+
+    async def rocket_rank_job(self):
+        res = await self.api.get_channel_info(self.api.network.channel_id)
+        data = await res.json()
+
+        if data.get("is_live"):
+            msg = await get_rank_message(self.api.network.channel_id)
+
+            await self.api.send(
+                msg,
+                self.api.network.channel_id,
+            )
+
+    def setup_scheduler(self):
+        if self.scheduler:
+            return
+        self.scheduler = AsyncIOScheduler()
+        self.scheduler.add_job(self.rocket_rank_job, "cron", minute="50-59")
+        self.scheduler.add_job(self.rocket_rank_job, "cron", minute="59", second="30")
+        self.scheduler.start()
 
     @staticmethod
     def get_db():
@@ -65,7 +88,7 @@ class Bot:
             db.query(DiceAmount).filter(DiceAmount.user_id == message.sender_id).first()
         )
         if not dice_amount:
-            dice_amount = DiceAmount(user_id=message.sender_id, amount=num)
+            dice_amount = DiceAmount(user_id=message.sender_id, amount=num)  # noqa
         else:
             dice_amount.amount += num
         db.add(dice_amount)
