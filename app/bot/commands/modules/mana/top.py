@@ -4,7 +4,7 @@ from .utils import get_rank_message
 
 @as_command
 class TopCommand(CommandBase):
-    """Списать кубы со счёта и замьютить пользоватея на выпавшее количество десятков минут"""
+    """Вывести информацию о текущем топе часа"""
 
     name = "топ"
 
