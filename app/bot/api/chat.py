@@ -61,19 +61,29 @@ class ChatHandler:
 
         logger.info("Connecting")
 
+        try:
+            await asyncio.wait_for(self._init_connection(), 5)
+        except asyncio.TimeoutError:
+            logger.error("Connection failed, retrying")
+            return await self._connect()
+
+        self.start_timestamp = datetime.now().timestamp()
+        self.running = True
+
+        logger.info("Connected")
+
+    async def _init_connection(self):
         self.socket = await websockets.connect(
             settings.TROVO_WEBSOCKET_HOST,
             create_protocol=WEBSOCKET_PROTOCOL_CLASS,
             ping_interval=None,
             ping_timeout=None,
         )
+        logger.info("Socket connected")
         self.listener_task = asyncio.create_task(self.listen())
         self.socket.set_network_manager(self.network)
         await self.socket.auth()
-        self.start_timestamp = datetime.now().timestamp()
-        self.running = True
-
-        logger.info("Connected")
+        logger.info("Socket authenticated")
 
     async def listen(self):
         try:
