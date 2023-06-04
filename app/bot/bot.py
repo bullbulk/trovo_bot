@@ -43,9 +43,25 @@ class Bot:
     def setup_scheduler(self):
         if self.scheduler:
             return
+
         self.scheduler = AsyncIOScheduler()
-        self.scheduler.add_job(self.rocket_rank_job, "cron", minute="50-59")
-        self.scheduler.add_job(self.rocket_rank_job, "cron", minute="59", second="30")
+
+        self.scheduler.add_job(
+            self.rocket_rank_job,
+            "cron",
+            minute="50-59",
+            hour="0-21",
+            day_of_week="0-5",
+        )
+        self.scheduler.add_job(
+            self.rocket_rank_job,
+            "cron",
+            minute="59",
+            second="30",
+            hour="0-21",
+            day_of_week="0-5",
+        )
+
         self.scheduler.start()
 
     @staticmethod
