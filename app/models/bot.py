@@ -1,4 +1,6 @@
-from sqlalchemy import ForeignKey
+from typing import Optional
+
+from sqlalchemy import ForeignKey, CheckConstraint
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
 from app.db.base_class import Base
@@ -18,7 +20,7 @@ class MassDiceEntry(Base):
     issuer_nickname: Mapped[str] = mapped_column()
     amount: Mapped[int] = mapped_column()
     trigger_text: Mapped[str] = mapped_column()
-    target_role: Mapped[str] = mapped_column(nullable=True)
+    target_role: Mapped[Optional[str]] = mapped_column(nullable=True)
     records: Mapped[list["MassDiceBanRecord"]] = relationship(back_populates="entry")
 
 
@@ -31,3 +33,16 @@ class MassDiceBanRecord(Base):
     message: Mapped[str] = mapped_column(server_default="")
     entry_id: Mapped[int] = mapped_column(ForeignKey("mass_dice_entry.id"))
     entry: Mapped["MassDiceEntry"] = relationship(back_populates="records")
+
+
+class VoteBanEntry(Base):
+    __tablename__ = "voteban_entry"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    target_user_id: Mapped[int]
+    target_nickname: Mapped[str]
+    issuer_user_id: Mapped[int]
+    issuer_nickname: Mapped[str]
+    votes_needed: Mapped[int]
+
+    __table_args__ = (CheckConstraint("votes_needed > 0"),)
