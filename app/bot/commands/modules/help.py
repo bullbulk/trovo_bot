@@ -16,9 +16,11 @@ class HelpCommand(CommandBase):
 
         args = parts[1:]
 
-        response = f"Команды: {', '.join(sorted(list(get_commands().keys())))}"
+        commands = {k: v for k, v in get_commands().items() if v.has_perms(message)}
+
+        response = f"Команды: {', '.join(sorted(list(commands.keys())))}"
         if len(args) != 0:
-            if command := get_commands().get(args[0].lower()):
+            if command := commands.get(args[0].lower()):
                 response = command.get_help()
 
         await cls.api.send(response, cls.api.network.channel_id)

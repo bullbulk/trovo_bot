@@ -3,47 +3,36 @@ from typing import TypeVar
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
-from app.bot.api import Api
 from app.bot.api.schemas import Message
 from app.config import settings
 from .interface import CommandInterface
-from ...exceptions import CommandDisabled
+from .singleton import SingletonRegistry
 
 
-class CommandBase(CommandInterface):
+class CommandBase(CommandInterface, SingletonRegistry):
+    name: str
+
     disabled = False
     owner_only = False
     moderator_only = False
+    streamer_only = False
 
     usage = ""
     example = ""
 
     @classmethod
     async def handle(cls, parts: list[str], message: Message, db: Session):
-        if cls.disabled:
-            raise CommandDisabled
+        pass
 
     @classmethod
     async def process(cls, parts: list[str], message: Message):
-        is_owner = message.sender_id == settings.TROVO_OWNER_ID
-        if cls.owner_only and not is_owner:
-            return
-        if (
-            cls.moderator_only
-            and not is_owner
-            and "mod" not in message.roles
-            and "streamer" not in message.roles
-        ):
+        if not cls.has_perms(message):
             return
         db = cls.get_db()
         try:
             await cls.handle(parts=parts, message=message, db=db)
         finally:
             db.close()
-
-    @classmethod
-    def set_api(cls, api: Api):
-        cls.api = api
 
     @staticmethod
     def get_db():
@@ -57,6 +46,27 @@ class CommandBase(CommandInterface):
         if cls.example:
             text += f" @@ Пример использования: {cls.example}"
         return text
+
+    @classmethod
+    def has_perms(cls, message: Message):
+        if cls.disabled:
+            return False
+
+        is_owner = message.sender_id == settings.TROVO_OWNER_ID
+
+        if is_owner:
+            return True
+
+        if not any([cls.moderator_only, cls.streamer_only, cls.owner_only]):
+            return True
+
+        if cls.moderator_only and (
+            "mod" in message.roles or "streamer" in message.roles
+        ):
+            return True
+
+        if cls.streamer_only and "streamer" in message.roles:
+            return True
 
 
 CommandInstance = TypeVar("CommandInstance", bound=CommandBase)
