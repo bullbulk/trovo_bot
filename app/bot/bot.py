@@ -8,7 +8,6 @@ from app.models import DiceAmount
 from .api import Api
 from .api.schemas import Message, MessageType
 from .commands import get_commands, CommandInstance
-from .commands.internal.singleton import SingletonRegistry
 from .commands.modules.cubes.controllers.massban import MassBanController
 from .commands.modules.mana.utils import get_rank_message
 
@@ -19,7 +18,6 @@ class Bot:
         self.db = self.get_db()
         self.scheduler = None
 
-        SingletonRegistry.set_api(self.api)
         self.commands: dict[str, CommandInstance] = get_commands()
         self.setup_scheduler()
 

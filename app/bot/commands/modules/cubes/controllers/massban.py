@@ -5,12 +5,12 @@ from sqlalchemy.orm import Session
 
 from app import crud
 from app import schemas
+from app.bot.api import Api
 from app.bot.api.schemas import Message
-from app.bot.commands.internal.singleton import SingletonRegistry
 from app.models import MassDiceEntry, MassDiceBanRecord
 
 
-class MassBanController(SingletonRegistry):
+class MassBanController:
     active_entries: dict[str, list[schemas.MassDiceEntry]] | None = None
 
     @classmethod
@@ -29,6 +29,8 @@ class MassBanController(SingletonRegistry):
 
     @classmethod
     async def handle_message(cls, message: Message, db: Session):
+        api = Api()
+
         # sourcery skip: for-append-to-extend
         if cls.active_entries is None:
             cls.update_active_entries(db)
@@ -39,7 +41,7 @@ class MassBanController(SingletonRegistry):
                 continue
 
             for entry in entries:
-                if (
+                if message.channel_id == entry.channel_id and (
                     not entry.trigger_text
                     or entry.trigger_text in message.content.lower()
                 ):
@@ -51,9 +53,7 @@ class MassBanController(SingletonRegistry):
         ban_seconds = len(applied_entries) * 600
 
         target = message.nick_name
-        data = await cls.api.command(
-            f"ban {target} {ban_seconds}", cls.api.network.channel_id
-        )
+        data = await api.command(f"ban {target} {ban_seconds}", message.channel_id)
         data = await data.json()
 
         ban_success = data.get("is_success", False)
@@ -85,6 +85,8 @@ class MassBanController(SingletonRegistry):
 
     @classmethod
     async def finish_mass_entry(cls, entry: MassDiceEntry):
+        api = Api()
+
         banned_nicknames = list(
             set(map(lambda x: f"@{x.user_nickname}", entry.records))
         )
@@ -92,8 +94,8 @@ class MassBanController(SingletonRegistry):
         target_role_text = (
             f' на роль "{entry.target_role}"' if entry.target_role else ""
         )
-        await cls.api.send(
+        await api.send(
             f"Отчикрыживание от @{entry.issuer_nickname}{target_role_text} окончено! @@ "
             f"Потерпевшие ({len(banned_nicknames)}): {' '.join(banned_nicknames)}",
-            cls.api.network.channel_id,
+            entry.channel_id,
         )

@@ -2,7 +2,6 @@ from abc import ABC
 
 from sqlalchemy.orm import Session
 
-from app.bot.api import Api
 from app.bot.api.schemas import Message
 
 
@@ -16,7 +15,6 @@ class abstractclassmethod(classmethod):  # noqa
 
 class CommandInterface(ABC):
     name: str
-    api: Api
 
     @abstractclassmethod
     async def handle(cls, parts: list[str], message: Message, db: Session):

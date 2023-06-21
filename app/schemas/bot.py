@@ -17,3 +17,4 @@ class MassDiceEntry(BaseModel):
     amount: int
     trigger_text: str
     target_role: str | None
+    channel_id: str

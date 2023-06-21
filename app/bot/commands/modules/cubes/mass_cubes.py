@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 
 from app import crud
 from app import schemas
+from app.bot.api import Api
 from app.bot.api.schemas import Message
 from app.bot.commands import as_command, CommandBase
 from app.bot.exceptions import IncorrectUsage
@@ -25,6 +26,7 @@ class MassCubeCommand(CommandBase):
     async def handle(cls, parts: list[str], message: Message, db: Session):
         await super().handle(parts, message, db)
 
+        api = Api()
         args = parts[1:]
 
         try:
@@ -36,9 +38,9 @@ class MassCubeCommand(CommandBase):
             trigger_text = " ".join(trigger_text).lower()
 
             if target_role.lower() in ["streamer", "mod", "supermod"]:
-                await cls.api.send(
+                await api.send(
                     f"@{message.nick_name} анус свой отпежь, пёс",
-                    cls.api.network.channel_id,
+                    message.channel_id,
                 )
                 return
             elif target_role == "*":
@@ -50,9 +52,9 @@ class MassCubeCommand(CommandBase):
                 raise IncorrectUsage
 
         except IncorrectUsage:
-            await cls.api.send(
+            await api.send(
                 f"Использование: {cls.usage}",
-                cls.api.network.channel_id,
+                message.channel_id,
             )
             return
 
@@ -60,9 +62,9 @@ class MassCubeCommand(CommandBase):
 
         dice_amount_num = getattr(dice_amount, "amount", 0)
         if dice_amount_num < amount:
-            await cls.api.send(
+            await api.send(
                 f"@{message.nick_name} у тебя недостаточно кубов",
-                cls.api.network.channel_id,
+                message.channel_id,
             )
             return
 
@@ -82,11 +84,11 @@ class MassCubeCommand(CommandBase):
             target_members_text = "всех участников чата"
 
         if not success_dices_num:
-            await cls.api.send(
+            await api.send(
                 f"@{message.nick_name} решил отчикрыжить {target_members_text} @@ "
                 f"Увы, результат: {result_str} @@ "
                 f"Всего: {success_dices_num}",
-                cls.api.network.channel_id,
+                message.channel_id,
             )
         else:
             begin_message = (
@@ -98,9 +100,9 @@ class MassCubeCommand(CommandBase):
                 begin_message += f'Триггер: "{trigger_text}" @@ '
             begin_message += "Да начнётся жатва!"
 
-            await cls.api.send(
+            await api.send(
                 begin_message,
-                cls.api.network.channel_id,
+                message.channel_id,
             )
 
             crud.mass_dice_entry.create(
@@ -111,6 +113,7 @@ class MassCubeCommand(CommandBase):
                     amount=success_dices_num,
                     trigger_text=trigger_text,
                     target_role=target_role,
+                    channel_id=message.channel_id,
                 ),
             )
             MassBanController.update_active_entries(db)

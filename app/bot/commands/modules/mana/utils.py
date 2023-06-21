@@ -80,7 +80,7 @@ async def get_rocket_rank(target_channel_id) -> RocketRankInfo:
     )
 
 
-async def get_rank_message(channel_id: int):
+async def get_rank_message(channel_id: int | str):
     ranks = await get_rocket_rank(channel_id)
     top_points = sorted([x.points for x in ranks.rank_list], reverse=True)
 

@@ -1,4 +1,5 @@
 from app import crud
+from app.bot.api import Api
 from app.bot.commands import as_command, CommandBase
 
 
@@ -15,13 +16,15 @@ class BalanceCommand(CommandBase):
     async def handle(cls, parts, message, db):
         await super().handle(parts, message, db)
 
+        api = Api()
+
         target_id = None
         target = None
 
         if len(parts) > 1:
             target = parts[1].removeprefix("@")
             if target not in ["fedorbot", "fedorbot2"]:
-                request = await cls.api.get_users([target])
+                request = await api.get_users([target])
                 data = await request.json()
 
                 users = data.get("users", [{}])
@@ -42,4 +45,4 @@ class BalanceCommand(CommandBase):
                 f"@{message.nick_name} кубов на счету у {target}: {result_amount}"
             )
 
-        await cls.api.send(response_message, cls.api.network.channel_id)
+        await api.send(response_message, message.channel_id)

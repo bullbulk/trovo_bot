@@ -1,4 +1,5 @@
 from app import crud
+from app.bot.api import Api
 from app.bot.commands import as_command, CommandBase
 from app.bot.utils import calc_dices_result
 
@@ -16,13 +17,15 @@ class CubeCommand(CommandBase):
     async def handle(cls, parts, message, db):
         await super().handle(parts, message, db)
 
+        api = Api()
+
         try:
             target = parts[1]
             target = target.removeprefix("@")
             if target.lower() in ["fedorbot2", "fedorbot"]:
-                await cls.api.send(
+                await api.send(
                     f"@{message.nick_name} анус свой отпежь, пёс",
-                    cls.api.network.channel_id,
+                    message.channel_id,
                 )
                 return
 
@@ -34,18 +37,16 @@ class CubeCommand(CommandBase):
                     amount = 1
 
         except IndexError:
-            await cls.api.send(
-                f"Использование: {cls.usage}", cls.api.network.channel_id
-            )
+            await api.send(f"Использование: {cls.usage}", message.channel_id)
             return
 
         dice_amount = crud.dice_amount.get_by_owner(db, user_id=message.sender_id)
 
         dice_amount_num = getattr(dice_amount, "amount", 0)
         if dice_amount_num < amount:
-            await cls.api.send(
+            await api.send(
                 f"@{message.nick_name} у тебя недостаточно кубов",
-                cls.api.network.channel_id,
+                message.channel_id,
             )
             return
 
@@ -62,33 +63,31 @@ class CubeCommand(CommandBase):
         subtract_cubes = False
 
         if not success_dices_num:
-            await cls.api.send(
+            await api.send(
                 f"@{message.nick_name} результат: {result_str}, {target} выживает",
-                cls.api.network.channel_id,
+                message.channel_id,
             )
             subtract_cubes = True
         else:
             ban_seconds = success_dices_num * 600
 
-            data = await cls.api.command(
-                f"ban {target} {ban_seconds}", cls.api.network.channel_id
-            )
+            data = await api.command(f"ban {target} {ban_seconds}", message.channel_id)
             data = await data.json()
 
             if data.get("is_success"):
-                await cls.api.send(
+                await api.send(
                     f"@{message.nick_name} результат: {result_str}, "
                     f"{target} отлетает на {ban_seconds // 60} минут",
-                    cls.api.network.channel_id,
+                    message.channel_id,
                 )
                 subtract_cubes = True
             else:
-                await cls.api.send(
+                await api.send(
                     f"@{message.nick_name} результат: {result_str}, "
                     f"{target} должен был отлететь на {ban_seconds // 60} минут, "
                     f"но при мьюте произошла ошибка. "
                     f"Возможно, ты неправильно написал ник или пользователь уже в бане",
-                    cls.api.network.channel_id,
+                    message.channel_id,
                 )
 
         if subtract_cubes:

@@ -1,5 +1,6 @@
 import asyncio
 
+from app.singleton import Singleton
 from .chat import ChatHandler
 from .network import NetworkManager, AuthError
 from .socket import ChatSocketProtocol
@@ -7,7 +8,7 @@ from .socket import ChatSocketProtocol
 WEBSOCKET_CLASS = ChatSocketProtocol
 
 
-class Api:
+class Api(metaclass=Singleton):
     chat: ChatHandler
     network: NetworkManager
 
@@ -60,7 +61,7 @@ class Api:
             f"/channels/{channel_id}/{message_id}/users/{user_id}",
         )
 
-    async def command(self, command: str, channel_id: int):
+    async def command(self, command: str, channel_id: str | int):
         command = command.removeprefix("/")
 
         return await self.network.post(

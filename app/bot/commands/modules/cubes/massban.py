@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 
 from app import crud
 from app import schemas
+from app.bot.api import Api
 from app.bot.api.schemas import Message
 from app.bot.commands import as_command, CommandBase
 from app.bot.exceptions import IncorrectUsage
@@ -28,6 +29,7 @@ class MassBanCommand(CommandBase):
     async def handle(cls, parts: list[str], message: Message, db: Session):
         await super().handle(parts, message, db)
 
+        api = Api()
         args = parts[1:]
 
         try:
@@ -39,9 +41,9 @@ class MassBanCommand(CommandBase):
             trigger_text = " ".join(trigger_text).lower()
 
             if target_role.lower() in ["streamer", "mod", "supermod"]:
-                await cls.api.send(
+                await api.send(
                     f"@{message.nick_name} анус свой отпежь, пёс",
-                    cls.api.network.channel_id,
+                    message.channel_id,
                 )
                 return
             elif target_role == "*":
@@ -53,9 +55,9 @@ class MassBanCommand(CommandBase):
                 raise IncorrectUsage
 
         except IncorrectUsage:
-            await cls.api.send(
+            await api.send(
                 f"Использование: {cls.usage}",
-                cls.api.network.channel_id,
+                message.channel_id,
             )
             return
 
@@ -72,9 +74,9 @@ class MassBanCommand(CommandBase):
             begin_message += f'Триггер: "{trigger_text}" @@ '
         begin_message += "Да начнётся жатва!"
 
-        await cls.api.send(
+        await api.send(
             begin_message,
-            cls.api.network.channel_id,
+            message.channel_id,
         )
 
         crud.mass_dice_entry.create(

@@ -3,6 +3,6 @@
 from .base_class import Base  # noqa
 
 try:
-    from models import *
+    from app.models import *
 except ImportError:
     from ..models import *

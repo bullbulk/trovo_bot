@@ -57,6 +57,7 @@ class RoleData(BaseModel):
 
 class Message(BaseModel):
     type: MessageType
+    channel_id: str | None
     content: dict[str, Any] | str
     nick_name: str
     avatar: str | None
@@ -88,6 +89,10 @@ class Message(BaseModel):
     @validator("roles", pre=True)
     def validate_roles(cls, v):  # noqa
         return list(map(str.lower, v))
+
+    def channel_id(self):
+        # message_id is presented as "messageId_channelId_senderId_..."
+        return self.message_id.split("_")[1]
 
 
 class WebSocketMessageData(BaseModel):

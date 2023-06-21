@@ -1,3 +1,4 @@
+from app.bot.api import Api
 from app.bot.commands import as_command, get_commands, CommandBase
 
 
@@ -23,4 +24,5 @@ class HelpCommand(CommandBase):
             if command := commands.get(args[0].lower()):
                 response = command.get_help()
 
-        await cls.api.send(response, cls.api.network.channel_id)
+        api = Api()
+        await api.send(response, message.channel_id)

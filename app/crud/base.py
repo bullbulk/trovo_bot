@@ -2,7 +2,6 @@ from typing import Any, Generic, Type, TypeVar
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
-from sqlalchemy import inspect
 from sqlalchemy.orm import Session
 
 from app.db.base_class import Base

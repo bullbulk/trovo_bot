@@ -1,3 +1,4 @@
+from app.bot.api import Api
 from app.bot.commands import as_command, CommandBase
 from .utils import get_rank_message
 
@@ -14,9 +15,10 @@ class TopCommand(CommandBase):
     async def handle(cls, parts, message, db):
         await super().handle(parts, message, db)
 
-        msg = await get_rank_message(cls.api.network.channel_id)
+        api = Api()
+        msg = await get_rank_message(message.channel_id)
 
-        await cls.api.send(
+        await api.send(
             msg,
-            cls.api.network.channel_id,
+            message.channel_id,
         )

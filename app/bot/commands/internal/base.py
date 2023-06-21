@@ -6,10 +6,9 @@ from app.api.deps import get_db
 from app.bot.api.schemas import Message
 from app.config import settings
 from .interface import CommandInterface
-from .singleton import SingletonRegistry
 
 
-class CommandBase(CommandInterface, SingletonRegistry):
+class CommandBase(CommandInterface):
     name: str
 
     disabled = False

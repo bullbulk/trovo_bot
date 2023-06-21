@@ -7,6 +7,7 @@ from passlib.context import CryptContext
 from app.config import settings
 
 from datetime import timezone
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 ALGORITHM = "HS256"
