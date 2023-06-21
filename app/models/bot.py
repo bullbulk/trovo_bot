@@ -16,7 +16,7 @@ class MassDiceEntry(Base):
     __tablename__ = "mass_dice_entry"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    channel_id: Mapped[str] = mapped_column(server_default="107655419")
+    channel_id: Mapped[str] = mapped_column(server_default="0")
     issuer_id: Mapped[int] = mapped_column(index=True)
     issuer_nickname: Mapped[str] = mapped_column()
     amount: Mapped[int] = mapped_column()
