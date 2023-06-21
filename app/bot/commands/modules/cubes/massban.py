@@ -20,7 +20,7 @@ class MassBanCommand(Command):
     usage = (
         "!massban <@название_роли или * (все участники)> <количество> [триггер текст]"
     )
-    example = "!massban @трипек 10 хочу бан | !отчикрыжить * 10 ПЕК ПЕК ПЕК"
+    example = "!massban @двупек 10 ПЕК ПЕК | !massban * 10 хочу бан"
 
     streamer_only = True
 
