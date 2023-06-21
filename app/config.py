@@ -8,7 +8,6 @@ dotenv.load_dotenv()
 
 
 class Settings(BaseSettings):
-    API_V1_STR: str = "/api/v1"
     SECRET_KEY: str
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
@@ -62,18 +61,6 @@ class Settings(BaseSettings):
     @validator("EMAILS_FROM_NAME")
     def get_project_name(cls, v: str | None, values: dict[str, Any]) -> str:  # noqa
         return v or values["PROJECT_NAME"]
-
-    EMAIL_RESET_TOKEN_EXPIRE_HOURS: int = 48
-    EMAIL_TEMPLATES_DIR: str = "email-templates/build"
-    EMAILS_ENABLED: bool = False
-
-    @validator("EMAILS_ENABLED", pre=True)
-    def get_emails_enabled(cls, v: bool, values: dict[str, Any]) -> bool:  # noqa
-        return bool(
-            values.get("SMTP_HOST")
-            and values.get("SMTP_PORT")
-            and values.get("EMAILS_FROM_EMAIL")
-        )
 
     EMAIL_TEST_USER: EmailStr
     FIRST_SUPERUSER: EmailStr

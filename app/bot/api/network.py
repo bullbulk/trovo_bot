@@ -73,7 +73,7 @@ class NetworkManager:
                 "client_secret": settings.TROVO_CLIENT_SECRET,
                 "grant_type": "authorization_code",
                 "code": code,
-                "redirect_uri": f"{settings.SERVER_HOST}{settings.API_V1_STR}/bot/oauth",
+                "redirect_uri": f"{settings.SERVER_HOST}/bot/oauth",
             },
         )
         data = await request.json()
@@ -100,7 +100,7 @@ class NetworkManager:
             f"?client_id={settings.TROVO_CLIENT_ID}"
             f"&response_type=code"
             f"&scope={'+'.join(scopes)}"
-            f"&redirect_uri={settings.SERVER_HOST}/api/v1/bot/oauth"
+            f"&redirect_uri={settings.SERVER_HOST}/api/bot/oauth"
         )
 
     async def refresh(self):
