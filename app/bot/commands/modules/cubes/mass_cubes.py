@@ -4,14 +4,13 @@ from app import crud
 from app import schemas
 from app.bot.api import Api
 from app.bot.api.schemas import Message
-from app.bot.commands import as_command, CommandBase
+from app.bot.commands import Command
 from app.bot.exceptions import IncorrectUsage
 from app.bot.utils import calc_dices_result
 from .controllers.massban import MassBanController
 
 
-@as_command
-class MassCubeCommand(CommandBase):
+class MassCubeCommand(Command):
     """
     Списать кубы со счёта и замьютить следующих выпавшее N-количество участников
     чата по роли и/или тексту-триггеру на 10 минут

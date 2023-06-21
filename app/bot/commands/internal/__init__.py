@@ -1,3 +1,2 @@
-from .base import CommandBase, CommandInstance
-from .decorator import as_command
-from .list_controller import get_commands
+from .base import Command, CommandInstance
+from .registry import CommandRegistry

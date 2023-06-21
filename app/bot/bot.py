@@ -7,7 +7,7 @@ from app.api.deps import get_db
 from app.models import DiceAmount
 from .api import Api
 from .api.schemas import Message, MessageType
-from .commands import get_commands, CommandInstance
+from .commands import CommandRegistry
 from .commands.modules.cubes.controllers.massban import MassBanController
 from .commands.modules.mana.utils import get_rank_message
 
@@ -18,7 +18,6 @@ class Bot:
         self.db = self.get_db()
         self.scheduler = None
 
-        self.commands: dict[str, CommandInstance] = get_commands()
         self.setup_scheduler()
 
     async def run(self):
@@ -124,5 +123,5 @@ class Bot:
     async def process_command(self, message: Message):
         content_parts = message.content.removeprefix("!").split()
 
-        if command := self.commands.get(content_parts[0].lower()):
+        if command := CommandRegistry.get(content_parts[0].lower()):
             await command.process(content_parts, message)

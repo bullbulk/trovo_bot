@@ -1,9 +1,8 @@
 from app.bot.api import Api
-from app.bot.commands import as_command, CommandBase
+from app.bot.commands import Command
 
 
-@as_command
-class HosepCommand(CommandBase):
+class HosepCommand(Command):
     name = "хосе"
     disabled = True
 
@@ -20,8 +19,7 @@ class HosepCommand(CommandBase):
         await api.send(response, message.channel_id)
 
 
-@as_command
-class InvokeCommand(CommandBase):
+class InvokeCommand(Command):
     """Выполнить команду от имени бота. Доступно только пользователям с ролью "модератор" и выше"""
 
     name = "invoke"

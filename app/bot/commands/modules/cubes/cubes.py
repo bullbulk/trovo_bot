@@ -1,11 +1,10 @@
 from app import crud
 from app.bot.api import Api
-from app.bot.commands import as_command, CommandBase
+from app.bot.commands import Command
 from app.bot.utils import calc_dices_result
 
 
-@as_command
-class CubeCommand(CommandBase):
+class CubeCommand(Command):
     """Списать кубы со счёта и замьютить пользоватея на выпавшее количество десятков минут"""
 
     name = "отпежить"

@@ -1,10 +1,9 @@
 from app import crud
 from app.bot.api import Api
-from app.bot.commands import as_command, CommandBase
+from app.bot.commands import Command
 
 
-@as_command
-class BalanceCommand(CommandBase):
+class BalanceCommand(Command):
     """Получить количество кубов на балансе. Кубы можно получить за отправку спелла MrCube"""
 
     name = "баланс"

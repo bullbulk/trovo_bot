@@ -1,9 +1,8 @@
 from app.bot.api import Api
-from app.bot.commands import as_command, get_commands, CommandBase
+from app.bot.commands import Command, CommandRegistry
 
 
-@as_command
-class HelpCommand(CommandBase):
+class HelpCommand(Command):
     """Выводит список всех команд или помощь по команде"""
 
     name = "help"
@@ -11,13 +10,16 @@ class HelpCommand(CommandBase):
     usage = "!help [имя команды]"
     example = "!help | !help отчикрыжить"
 
-    @classmethod
-    async def handle(cls, parts, message, db):
+    async def handle(self, parts, message, db):
         await super().handle(parts, message, db)
 
         args = parts[1:]
 
-        commands = {k: v for k, v in get_commands().items() if v.has_perms(message)}
+        commands = {
+            k: v
+            for k, v in CommandRegistry.get_commands().items()
+            if v.has_perms(message)
+        }
 
         response = f"Команды: {', '.join(sorted(list(commands.keys())))}"
         if len(args) != 0:

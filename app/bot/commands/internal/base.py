@@ -6,10 +6,12 @@ from app.api.deps import get_db
 from app.bot.api.schemas import Message
 from app.config import settings
 from .interface import CommandInterface
+from .registry import CommandRegistry
 
 
-class CommandBase(CommandInterface):
+class Command(CommandInterface, metaclass=CommandRegistry):
     name: str
+    aliases: list[str]
 
     disabled = False
     owner_only = False
@@ -19,17 +21,15 @@ class CommandBase(CommandInterface):
     usage = ""
     example = ""
 
-    @classmethod
-    async def handle(cls, parts: list[str], message: Message, db: Session):
+    async def handle(self, parts: list[str], message: Message, db: Session):
         pass
 
-    @classmethod
-    async def process(cls, parts: list[str], message: Message):
-        if not cls.has_perms(message):
+    async def process(self, parts: list[str], message: Message):
+        if not self.has_perms(message):
             return
-        db = cls.get_db()
+        db = self.get_db()
         try:
-            await cls.handle(parts=parts, message=message, db=db)
+            await self.handle(parts=parts, message=message, db=db)
         finally:
             db.close()
 
@@ -37,18 +37,16 @@ class CommandBase(CommandInterface):
     def get_db():
         return next(get_db())
 
-    @classmethod
-    def get_help(cls):
-        text = f"Команда !{cls.name} @@ {cls.__doc__}"
-        if cls.usage:
-            text += f" @@ Использование: {cls.usage} @@ (<> - обязательный, [] - необязательный аргумент)"
-        if cls.example:
-            text += f" @@ Пример использования: {cls.example}"
+    def get_help(self):
+        text = f"Команда !{self.name} @@ {self.__doc__}"
+        if self.usage:
+            text += f" @@ Использование: {self.usage} @@ (<> - обязательный, [] - необязательный аргумент)"
+        if self.example:
+            text += f" @@ Пример использования: {self.example}"
         return text
 
-    @classmethod
-    def has_perms(cls, message: Message):
-        if cls.disabled:
+    def has_perms(self, message: Message):
+        if self.disabled:
             return False
 
         is_owner = message.sender_id == settings.TROVO_OWNER_ID
@@ -56,16 +54,16 @@ class CommandBase(CommandInterface):
         if is_owner:
             return True
 
-        if not any([cls.moderator_only, cls.streamer_only, cls.owner_only]):
+        if not any([self.moderator_only, self.streamer_only, self.owner_only]):
             return True
 
-        if cls.moderator_only and (
+        if self.moderator_only and (
             "mod" in message.roles or "streamer" in message.roles
         ):
             return True
 
-        if cls.streamer_only and "streamer" in message.roles:
+        if self.streamer_only and "streamer" in message.roles:
             return True
 
 
-CommandInstance = TypeVar("CommandInstance", bound=CommandBase)
+CommandInstance = TypeVar("CommandInstance", bound=Command)
