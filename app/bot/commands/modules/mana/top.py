@@ -11,8 +11,7 @@ class TopCommand(Command):
 
     usage = "!топ"
 
-    @classmethod
-    async def handle(cls, parts, message, db):
+    async def handle(self, parts, message, db):
         await super().handle(parts, message, db)
 
         api = Api()

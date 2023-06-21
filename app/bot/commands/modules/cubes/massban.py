@@ -24,8 +24,7 @@ class MassBanCommand(Command):
 
     streamer_only = True
 
-    @classmethod
-    async def handle(cls, parts: list[str], message: Message, db: Session):
+    async def handle(self, parts: list[str], message: Message, db: Session):
         await super().handle(parts, message, db)
 
         api = Api()
@@ -55,7 +54,7 @@ class MassBanCommand(Command):
 
         except IncorrectUsage:
             await api.send(
-                f"Использование: {cls.usage}",
+                f"Использование: {self.usage}",
                 message.channel_id,
             )
             return
@@ -86,6 +85,7 @@ class MassBanCommand(Command):
                 amount=amount,
                 trigger_text=trigger_text,
                 target_role=target_role,
+                channel_id=message.channel_id,
             ),
         )
         MassBanController.update_active_entries(db)

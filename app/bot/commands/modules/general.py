@@ -6,8 +6,7 @@ class HosepCommand(Command):
     name = "хосе"
     disabled = True
 
-    @classmethod
-    async def handle(cls, parts, message, db):
+    async def handle(self, parts, message, db):
         await super().handle(parts, message, db)
 
         api = Api()
@@ -28,8 +27,7 @@ class InvokeCommand(Command):
     usage = "!invoke <имя команды> [*аргументы]"
     example = "!invoke ban bullbulk 30"
 
-    @classmethod
-    async def handle(cls, parts: list[str], message, db):
+    async def handle(self, parts: list[str], message, db):
         await super().handle(parts, message, db)
 
         api = Api()

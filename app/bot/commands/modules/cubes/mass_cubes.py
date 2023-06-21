@@ -21,8 +21,7 @@ class MassCubeCommand(Command):
     usage = "!отчикрыжить <@название_роли или * (все участники)> <количество> [триггер текст]"
     example = "!отчикрыжить @трипек 10 хочу бан | !отчикрыжить * 10 ПЕК ПЕК ПЕК"
 
-    @classmethod
-    async def handle(cls, parts: list[str], message: Message, db: Session):
+    async def handle(self, parts: list[str], message: Message, db: Session):
         await super().handle(parts, message, db)
 
         api = Api()
@@ -52,7 +51,7 @@ class MassCubeCommand(Command):
 
         except IncorrectUsage:
             await api.send(
-                f"Использование: {cls.usage}",
+                f"Использование: {self.usage}",
                 message.channel_id,
             )
             return

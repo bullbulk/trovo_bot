@@ -1,14 +1,14 @@
-from .base import Command
-
-
 class CommandRegistry(type):
-    commands: dict[str, Command] = {}
+    commands = {}
 
     def __new__(cls, *args, **kwargs):
         class_ = super().__new__(cls, *args, **kwargs)
 
-        name = getattr(class_, "name")
-        aliases = getattr(class_, "aliases")
+        if not (hasattr(class_, "name") or hasattr(class_, "aliases")):
+            return class_
+
+        name = getattr(class_, "name", None)
+        aliases = getattr(class_, "aliases", None)
 
         if not (name or aliases):
             raise ValueError("Command should have name or aliases set")
@@ -23,7 +23,7 @@ class CommandRegistry(type):
         return class_
 
     @classmethod
-    def add(cls, command: Command):
+    def add(cls, command):
         cls.commands[command.name] = command
 
     @classmethod
@@ -31,5 +31,5 @@ class CommandRegistry(type):
         return cls.commands.get(name)
 
     @classmethod
-    def get_commands(cls) -> dict[str, Command]:
+    def get_commands(cls):
         return {x: y for x, y in cls.commands.items() if not y.disabled}

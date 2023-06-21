@@ -12,8 +12,7 @@ class CubeCommand(Command):
     usage = "!отпежить <@никнейм> [количество]"
     example = "!отпежить @bullbulk 10 | !отпежить @bullbulk (кинет 1 куб) "
 
-    @classmethod
-    async def handle(cls, parts, message, db):
+    async def handle(self, parts, message, db):
         await super().handle(parts, message, db)
 
         api = Api()
@@ -36,7 +35,7 @@ class CubeCommand(Command):
                     amount = 1
 
         except IndexError:
-            await api.send(f"Использование: {cls.usage}", message.channel_id)
+            await api.send(f"Использование: {self.usage}", message.channel_id)
             return
 
         dice_amount = crud.dice_amount.get_by_owner(db, user_id=message.sender_id)

@@ -8,7 +8,7 @@ from app.api.api import api_router
 from app.bot import bot_instance
 from app.config import settings
 
-app = FastAPI(title=settings.PROJECT_NAME, openapi_url="openapi.json")
+app = FastAPI(title=settings.PROJECT_NAME, openapi_url="/openapi.json")
 
 # Set all CORS enabled origins
 if settings.BACKEND_CORS_ORIGINS:
