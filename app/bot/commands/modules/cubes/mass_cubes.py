@@ -32,10 +32,10 @@ class MassCubeCommand(Command):
                 raise IncorrectUsage
 
             target_role, amount, *trigger_text = args
-            target_role = target_role.removeprefix("@")
+            target_role = target_role.removeprefix("@").lower()
             trigger_text = " ".join(trigger_text).lower()
 
-            if target_role.lower() in ["streamer", "mod", "supermod"]:
+            if target_role in ["streamer", "mod", "supermod"]:
                 await api.send(
                     f"@{message.nick_name} анус свой отпежь, пёс",
                     message.channel_id,
