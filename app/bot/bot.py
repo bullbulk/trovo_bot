@@ -90,9 +90,17 @@ class Bot:
         total_mana = message.content["num"] * message.content["gift_value"]
 
         if total_mana >= 99999 and "ОМНОМНОМ" not in message.roles:
-            await self.api.command(
+            res = await self.api.command(
                 f"addrole ОМНОМНОМ {message.nick_name}", self.api.network.channel_id
             )
+            data = await res.json()
+            if data.get("is_success", False):
+                await self.api.send(f'@{message.nick_name} получает роль "ОМНОМНОМ"!')
+            else:
+                await self.api.send(
+                    f'У меня не получилось выдать роль "ОМНОМНОМ" для @{message.nick_name}. '
+                    f'Может быть, я не имею права добавлять роли?'
+                )
 
     async def process_dice_spell(self, message: Message):
         num = message.content["num"]
