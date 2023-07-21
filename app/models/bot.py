@@ -22,6 +22,7 @@ class MassDiceEntry(Base):
     amount: Mapped[int] = mapped_column()
     trigger_text: Mapped[str] = mapped_column()
     target_role: Mapped[Optional[str]] = mapped_column(nullable=True)
+    ascii_target_role: Mapped[Optional[str]] = mapped_column(nullable=True)
     records: Mapped[list["MassDiceBanRecord"]] = relationship(back_populates="entry")
 
 

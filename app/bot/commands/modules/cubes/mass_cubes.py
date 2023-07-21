@@ -6,7 +6,7 @@ from app.bot.api import Api
 from app.bot.api.schemas import Message
 from app.bot.commands import Command
 from app.bot.exceptions import IncorrectUsage
-from app.bot.utils import calc_dices_result
+from app.bot.utils import calc_dices_result, create_massban_entry
 from .controllers.massban import MassBanController
 
 
@@ -103,17 +103,12 @@ class MassCubeCommand(Command):
                 message.channel_id,
             )
 
-            crud.mass_dice_entry.create(
-                db,
-                obj_in=schemas.MassDiceEntry(
-                    issuer_id=message.sender_id,
-                    issuer_nickname=message.nick_name,
-                    amount=success_dices_num,
-                    trigger_text=trigger_text,
-                    target_role=target_role,
-                    channel_id=message.channel_id,
-                ),
+            create_massban_entry(
+                db=db,
+                message=message,
+                amount=amount,
+                trigger_text=trigger_text,
+                target_role=target_role,
             )
-            MassBanController.update_active_entries(db)
 
         crud.dice_amount.subtract(db, db_obj=dice_amount, amount=amount)

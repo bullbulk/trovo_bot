@@ -19,7 +19,7 @@ class MassBanController:
         grouped_entries = {}
 
         for entry in entries:
-            role = entry.target_role
+            role = entry.ascii_target_role
             if role not in grouped_entries:
                 grouped_entries[role] = []
             grouped_entries[role].append(entry)
@@ -37,7 +37,7 @@ class MassBanController:
 
         applied_entries = []
         for role, entries in cls.active_entries.items():
-            if role and role not in message.roles:
+            if role and role not in message.ascii_roles:
                 continue
 
             for entry in entries:

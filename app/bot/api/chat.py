@@ -59,6 +59,7 @@ class ChatHandler:
         if not self.network.access_token:
             await self.network.refresh()
 
+        self.start_timestamp = datetime.now().timestamp()
         logger.info("Connecting")
 
         try:
@@ -67,7 +68,6 @@ class ChatHandler:
             logger.error("Connection failed, retrying")
             return await self._connect()
 
-        self.start_timestamp = datetime.now().timestamp()
         self.running = True
 
         logger.info("Connected")

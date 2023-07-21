@@ -1,12 +1,10 @@
 from sqlalchemy.orm import Session
 
-from app import crud
-from app import schemas
 from app.bot.api import Api
 from app.bot.api.schemas import Message
 from app.bot.commands import Command
 from app.bot.exceptions import IncorrectUsage
-from .controllers.massban import MassBanController
+from app.bot.utils import create_massban_entry
 
 
 class MassBanCommand(Command):
@@ -77,15 +75,10 @@ class MassBanCommand(Command):
             message.channel_id,
         )
 
-        crud.mass_dice_entry.create(
-            db,
-            obj_in=schemas.MassDiceEntry(
-                issuer_id=message.sender_id,
-                issuer_nickname=message.nick_name,
-                amount=amount,
-                trigger_text=trigger_text,
-                target_role=target_role,
-                channel_id=message.channel_id,
-            ),
+        create_massban_entry(
+            db=db,
+            message=message,
+            amount=amount,
+            trigger_text=trigger_text,
+            target_role=target_role,
         )
-        MassBanController.update_active_entries(db)

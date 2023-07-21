@@ -4,7 +4,8 @@ from enum import Enum
 from json import JSONDecodeError
 from typing import Literal, Any
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, root_validator
+from unidecode import unidecode
 
 
 class MessageType(Enum):
@@ -65,6 +66,7 @@ class Message(BaseModel):
     medals: list[str] = []
     decos: list[str] = []
     roles: list[str] = []
+    ascii_roles: list[str] = []
     message_id: str
     sender_id: int | None
     send_time: datetime
@@ -85,9 +87,12 @@ class Message(BaseModel):
         except JSONDecodeError:
             return v
 
-    @validator("roles", pre=True)
-    def validate_roles(cls, v):  # noqa
-        return list(map(str.lower, v))
+    @root_validator(pre=True)
+    def build_roles(cls, values: dict[str, Any]) -> dict[str, Any]:
+        values["ascii_roles"] = list(
+            map(lambda x: unidecode(x.lower()), values["roles"])
+        )
+        return values
 
     @property
     def channel_id(self):
