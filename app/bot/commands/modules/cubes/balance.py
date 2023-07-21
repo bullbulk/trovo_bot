@@ -22,10 +22,13 @@ class BalanceCommand(Command):
         if len(parts) > 1:
             target = parts[1].removeprefix("@")
             if target not in ["fedorbot", "fedorbot2"]:
-                request = await api.get_users([target])
-                data = await request.json()
+                res = await api.get_channel_info(username=target)
+                channel_info = await res.json()
 
-                users = data.get("users", [{}])
+                res = await api.get_users([channel_info.get("username")])
+                users_data = await res.json()
+
+                users = users_data.get("users", [{}])
                 target_id = users[0].get("channel_id")
 
         if not target_id:
