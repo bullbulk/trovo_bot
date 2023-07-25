@@ -95,11 +95,15 @@ class Bot:
             )
             data = await res.json()
             if data.get("is_success", False):
-                await self.api.send(f'@{message.nick_name} получает роль "ОМНОМНОМ"!')
+                await self.api.send(
+                    f'@{message.nick_name} получает роль "ОМНОМНОМ"!',
+                    message.channel_id,
+                )
             else:
                 await self.api.send(
                     f'У меня не получилось выдать роль "ОМНОМНОМ" для @{message.nick_name}. '
-                    f'Может быть, я не имею права добавлять роли?'
+                    f"Может быть, я не имею права добавлять роли?",
+                    message.channel_id,
                 )
 
     async def process_dice_spell(self, message: Message):
@@ -123,7 +127,7 @@ class Bot:
         asyncio.create_task(MassBanController.handle_message(message, self.db))
 
         if "+ в ча" in message.content.lower():
-            await self.api.send("+", self.api.network.channel_id)
+            await self.api.send("+", message.channel_id)
 
         if message.content.startswith("!"):
             await self.process_command(message)
