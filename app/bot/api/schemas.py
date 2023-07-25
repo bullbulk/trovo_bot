@@ -89,9 +89,10 @@ class Message(BaseModel):
 
     @root_validator(pre=True)
     def build_roles(cls, values: dict[str, Any]) -> dict[str, Any]:
-        values["ascii_roles"] = list(
-            map(lambda x: unidecode(x.lower()), values["roles"])
-        )
+        if "roles" in values:
+            values["ascii_roles"] = list(
+                map(lambda x: unidecode(x.lower()), values["roles"])
+            )
         return values
 
     @property
