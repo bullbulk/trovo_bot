@@ -126,8 +126,7 @@ class Bot:
     async def process_message(self, message: Message):
         asyncio.create_task(MassBanController.handle_message(message, self.db))
 
-        if "+ в ча" in message.content.lower():
-            await self.api.send("+", message.channel_id)
+        await self.handle_message_echo(message)
 
         if message.content.startswith("!"):
             await self.process_command(message)
@@ -137,3 +136,16 @@ class Bot:
 
         if command := CommandRegistry.get(content_parts[0].lower()):
             await command.process(content_parts, message)
+
+    async def handle_message_echo(self, message: Message):
+        echoes = {
+            "+ в ча": "+",
+            "юпуп": ":sub_peepoclogi",
+        }
+
+        text = message.content.lower()
+
+        for trigger, value in echoes.items():
+            if trigger in text:
+                await self.api.send(value, message.channel_id)
+                break
