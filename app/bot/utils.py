@@ -30,8 +30,11 @@ def create_massban_entry(
     trigger_text: str | None,
     target_role: str | None,
 ):
-    ascii_target_role = target_role or unidecode(target_role)
-
+    if target_role:
+        ascii_target_role = unidecode(target_role).lower()
+    else:
+        ascii_target_role = target_role
+        
     crud.mass_dice_entry.create(
         db,
         obj_in=MassDiceEntry(
@@ -40,7 +43,7 @@ def create_massban_entry(
             amount=amount,
             trigger_text=trigger_text,
             target_role=target_role,
-            ascii_target_role=ascii_target_role.lower(),
+            ascii_target_role=ascii_target_role,
             channel_id=message.channel_id,
         ),
     )
