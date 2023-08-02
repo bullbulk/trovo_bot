@@ -23,7 +23,7 @@ class InterceptHandler(logging.Handler):
 
 
 def init():
-    logger.add("log/main.log", level="INFO")
+    logger.add("log/main.log", level="INFO", rotation="12:00")
 
     logging.getLogger().handlers.append(InterceptHandler())
     logging.getLogger("uvicorn.access").handlers.append(InterceptHandler())
