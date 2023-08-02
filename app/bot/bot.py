@@ -87,6 +87,11 @@ class Bot:
             await self.process_mana_spell(message)
 
     async def process_mana_spell(self, message: Message):
+        total_mana = message.content["num"] * message.content["gift_value"]
+
+        if total_mana >= 20000:
+            await self.grant_role(message, "НАЧИНАЮЩИЙ КОЛДУН")
+
         gifts = {
             "omnomnom": {"required_amount": 1, "role": "ОМНОМНОМ"},
             "kfcislive": {"required_amount": 1, "role": "ДИЕТОЛОГ"},
@@ -105,22 +110,25 @@ class Bot:
             message.content["num"] >= selected_gift["required_amount"]
             and (selected_role := selected_gift["role"]) not in message.roles
         ):
-            res = await self.api.command(
-                f"addrole {selected_role} {message.nick_name}",
+            await self.grant_role(message, selected_role)
+
+    async def grant_role(self, message: Message, role: str):
+        res = await self.api.command(
+            f"addrole {role} {message.nick_name}",
+            message.channel_id,
+        )
+        data = await res.json()
+        if data.get("is_success", False):
+            await self.api.send(
+                f'@{message.nick_name} получает роль "{role}"!',
                 message.channel_id,
             )
-            data = await res.json()
-            if data.get("is_success", False):
-                await self.api.send(
-                    f'@{message.nick_name} получает роль "{selected_role}"!',
-                    message.channel_id,
-                )
-            else:
-                await self.api.send(
-                    f'У меня не получилось выдать роль "{selected_role}" для @{message.nick_name}. '
-                    f"Может быть, я не имею права добавлять роли?",
-                    message.channel_id,
-                )
+        else:
+            await self.api.send(
+                f'У меня не получилось выдать роль "{role}" для @{message.nick_name}. '
+                f"Может быть, я не имею права добавлять роли?",
+                message.channel_id,
+            )
 
     async def process_dice_spell(self, message: Message):
         num = message.content["num"]
