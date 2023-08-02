@@ -1,5 +1,6 @@
 import contextlib
 from json import JSONDecodeError
+from urllib.parse import urlparse
 
 from aiohttp import ClientSession, ContentTypeError
 from loguru import logger
@@ -13,7 +14,6 @@ from .statuses import (
     EXPIRED_ACCESS_TOKEN,
     EXPIRED_REFRESH_TOKEN,
 )
-
 
 scopes = [
     "user_details_self",
@@ -44,7 +44,7 @@ class NetworkManager:
         if not channel_nickname:
             return
 
-        channel_nickname = channel_nickname.value.lower()
+        channel_nickname = channel_nickname.lower()
 
         await self.update_channel_id(channel_nickname)
 
@@ -67,13 +67,19 @@ class NetworkManager:
         return channel_id
 
     async def exchange(self, code):
+        host = settings.SERVER_HOST
+        parsed_host = urlparse(host)
+
+        if parsed_host.hostname == "localhost":
+            host = host.replace("localhost", "127.0.0.1")
+
         request = await self.post(
             "/exchangetoken",
             json={
                 "client_secret": settings.TROVO_CLIENT_SECRET,
                 "grant_type": "authorization_code",
                 "code": code,
-                "redirect_uri": f"{settings.SERVER_HOST}/bot/oauth",
+                "redirect_uri": f"{host}/bot/oauth",
             },
         )
         data = await request.json()
@@ -95,19 +101,23 @@ class NetworkManager:
 
     @staticmethod
     def generate_oauth_uri():
+        host = settings.SERVER_HOST
+        parsed_host = urlparse(host)
+
+        if parsed_host.hostname == "localhost":
+            host = host.replace("localhost", "127.0.0.1")
+
         return (
             f"https://open.trovo.live/page/login.html"
             f"?client_id={settings.TROVO_CLIENT_ID}"
             f"&response_type=code"
             f"&scope={'+'.join(scopes)}"
-            f"&redirect_uri={settings.SERVER_HOST}/api/bot/oauth"
+            f"&redirect_uri={host}/bot/oauth"
         )
 
     async def refresh(self):
         refresh_token = get_config(self.get_db(), "refresh_token")
         if not refresh_token:
-            return
-        if not refresh_token.value:
             return
 
         request = await self.post(
@@ -115,7 +125,7 @@ class NetworkManager:
             json={
                 "client_secret": settings.TROVO_CLIENT_SECRET,
                 "grant_type": "refresh_token",
-                "refresh_token": refresh_token.value,
+                "refresh_token": refresh_token,
             },
         )
 
@@ -128,7 +138,8 @@ class NetworkManager:
         self.need_login = False
 
     async def save_tokens(self, access: str, refresh: str):
-        set_config(self.get_db(), "refresh_token", refresh)
+        if refresh:
+            set_config(self.get_db(), "refresh_token", refresh)
         self.access_token = access
         self.ready = True
 
