@@ -113,6 +113,9 @@ class Bot:
             await self.grant_role(message, selected_role)
 
     async def grant_role(self, message: Message, role: str):
+        if role in message.roles:
+            return
+
         res = await self.api.command(
             f"addrole {role} {message.nick_name}",
             message.channel_id,
