@@ -6,7 +6,6 @@ from loguru import logger
 from app.api.deps import get_db
 from app.models import DiceAmount
 from .api import Api
-from .api.donationalerts import da_sio
 from .api.schemas import Message, MessageType
 from .commands import CommandRegistry
 from .commands.modules.cubes.controllers.massban import MassBanController
@@ -16,17 +15,17 @@ from .commands.modules.mana.utils import get_rank_message
 class Bot:
     def __init__(self):
         self.api = Api()
-        self.db = self.get_db()
+        self.db_session = next(get_db())
         self.scheduler = None
 
         self.setup_scheduler()
 
     async def run(self):
-        while not self.api.ready:
-            await asyncio.sleep(0.1)
+        await self.api.wait_until_ready()
 
         await self.api.chat.connect()
         asyncio.create_task(self.connect_da())
+
         self.api.chat.add_listener(self.listen)
 
     async def connect_da(self):
@@ -34,10 +33,7 @@ class Bot:
         # await da_sio.connect()
 
     async def rocket_rank_job(self):
-        res = await self.api.get_channel_info(self.api.network.channel_id)
-        data = await res.json()
-
-        if data.get("is_live"):
+        if await self.api.is_live(self.api.network.channel_id):
             msg = await get_rank_message(self.api.network.channel_id)
 
             await self.api.send(
@@ -69,12 +65,8 @@ class Bot:
 
         self.scheduler.start()
 
-    @staticmethod
-    def get_db():
-        return next(get_db())
-
     async def listen(self, message: Message):
-        if message.type in [MessageType.SPELL, MessageType.SPELL_CUSTOM]:
+        if message.is_spell:
             asyncio.create_task(self.process_spell(message))
 
         if message.type == MessageType.NORMAL:
@@ -144,7 +136,7 @@ class Bot:
     async def process_dice_spell(self, message: Message):
         num = message.content["num"]
 
-        db = self.get_db()
+        db = next(get_db())
 
         dice_amount = (
             db.query(DiceAmount).filter(DiceAmount.user_id == message.sender_id).first()
@@ -155,11 +147,10 @@ class Bot:
             dice_amount.amount += num
         db.add(dice_amount)
         db.commit()
-        db.refresh(dice_amount)
         db.close()
 
     async def process_message(self, message: Message):
-        asyncio.create_task(MassBanController.handle_message(message, self.db))
+        asyncio.create_task(MassBanController.handle_message(message, self.db_session))
 
         await self.handle_message_echo(message)
 
@@ -168,6 +159,8 @@ class Bot:
 
     async def process_command(self, message: Message):
         content_parts = message.content.removeprefix("!").split()
+        if not content_parts:
+            return
 
         if command := CommandRegistry.get(content_parts[0].lower()):
             await command.process(content_parts, message)

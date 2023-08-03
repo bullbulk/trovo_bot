@@ -1,6 +1,7 @@
 from app import crud
 from app.bot.api import Api
 from app.bot.commands import Command
+from app.bot.exceptions import IncorrectUsage
 from app.bot.utils import calc_dices_result
 
 
@@ -17,26 +18,25 @@ class CubeCommand(Command):
 
         api = Api()
 
-        try:
-            target = parts[1]
-            target = target.removeprefix("@")
-            if target.lower() in ["fedorbot2", "fedorbot"]:
-                await api.send(
-                    f"@{message.nick_name} анус свой отпежь, пёс",
-                    message.channel_id,
-                )
-                return
+        if len(parts) < 2:
+            raise IncorrectUsage
 
-            amount = 1
-            if len(parts) >= 3:
-                if parts[2].isnumeric():
-                    amount = int(parts[2])
-                if amount <= 0:
-                    amount = 1
-
-        except IndexError:
-            await api.send(f"Использование: {self.usage}", message.channel_id)
+        target = parts[1]
+        target = target.removeprefix("@")
+        if target.lower() in ["fedorbot2", "fedorbot"]:
+            await api.send(
+                f"@{message.nick_name} анус свой отпежь, пёс",
+                message.channel_id,
+            )
             return
+
+        amount = 1
+        if len(parts) >= 3:
+            if parts[2].isnumeric():
+                amount = int(parts[2])
+            if amount <= 0:
+                amount = 1
+
 
         dice_amount = crud.dice_amount.get_by_owner(db, user_id=message.sender_id)
 

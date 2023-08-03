@@ -107,7 +107,7 @@ class ChatHandler:
             self.running = False
             try:
                 return await self.connect()
-            except Exception:
+            except Exception: # noqa
                 logger.error("Unable to connect")
-        except Exception:
+        except Exception: # noqa
             logger.error(traceback.format_exc())

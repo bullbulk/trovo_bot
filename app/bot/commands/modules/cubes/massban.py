@@ -28,34 +28,27 @@ class MassBanCommand(Command):
         api = Api()
         args = parts[1:]
 
-        try:
-            if len(args) < 2:
-                raise IncorrectUsage
+        if len(args) < 2:
+            raise IncorrectUsage
 
-            target_role, amount, *trigger_text = args
-            target_role = target_role.removeprefix("@").lower()
-            trigger_text = " ".join(trigger_text).lower()
+        target_role, amount, *trigger_text = args
+        target_role = target_role.removeprefix("@").lower()
+        trigger_text = " ".join(trigger_text).lower()
 
-            if target_role in ["streamer", "mod", "supermod"]:
-                await api.send(
-                    f"@{message.nick_name} анус свой отпежь, пёс",
-                    message.channel_id,
-                )
-                return
-            elif target_role == "*":
-                target_role = None
-
-            if amount.isnumeric():
-                amount = int(amount)
-            else:
-                raise IncorrectUsage
-
-        except IncorrectUsage:
+        if target_role in ["streamer", "mod", "supermod"]:
             await api.send(
-                f"Использование: {self.usage}",
+                f"@{message.nick_name} анус свой отпежь, пёс",
                 message.channel_id,
             )
             return
+        elif target_role == "*":
+            target_role = None
+
+        if amount.isnumeric():
+            amount = int(amount)
+        else:
+            raise IncorrectUsage
+
 
         if target_role:
             target_members_text = f'участников чата с ролью "{target_role}"'

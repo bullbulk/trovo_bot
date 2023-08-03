@@ -1,3 +1,4 @@
+import asyncio
 import contextlib
 from json import JSONDecodeError
 from urllib.parse import urlparse
@@ -15,7 +16,10 @@ from .statuses import (
     EXPIRED_REFRESH_TOKEN,
 )
 
-scopes = [
+REFRESH_TOKEN_ERRORS = (INVALID_REFRESH_TOKEN, EXPIRED_REFRESH_TOKEN)
+ACCESS_TOKEN_ERRORS = (INVALID_ACCESS_TOKEN, EXPIRED_ACCESS_TOKEN)
+
+SCOPES = [
     "user_details_self",
     "channel_details_self",
     "channel_update_self",
@@ -30,17 +34,29 @@ class AuthError(Exception):
     pass
 
 
+def get_current_host():
+    host = settings.SERVER_HOST
+    parsed_host = urlparse(host)
+    if parsed_host.hostname == "localhost":
+        host = host.replace("localhost", "127.0.0.1")
+    return host
+
+
 class NetworkManager:
     access_token: str | None
 
     def __init__(self):
         self.access_token = None
         self.need_login = False
-        self.ready = False
+        self.ready = asyncio.Event()
         self.channel_id = 0
 
+    async def wait_until_ready(self):
+        await self.ready.wait()
+
     async def get_chat_token(self):
-        channel_nickname = get_config(self.get_db(), "trovo_channel_nickname")
+        with next(get_db()) as session:
+            channel_nickname = get_config(session, "trovo_channel_nickname")
         if not channel_nickname:
             return
 
@@ -67,11 +83,7 @@ class NetworkManager:
         return channel_id
 
     async def exchange(self, code):
-        host = settings.SERVER_HOST
-        parsed_host = urlparse(host)
-
-        if parsed_host.hostname == "localhost":
-            host = host.replace("localhost", "127.0.0.1")
+        host = get_current_host()
 
         request = await self.post(
             "/exchangetoken",
@@ -86,8 +98,7 @@ class NetworkManager:
         logger.info(data)
 
         if "access_token" not in data.keys():
-            self.need_login = True
-            raise AuthError()
+            await self._raise_auth_error()
         await self.save_tokens(data["access_token"], data["refresh_token"])
         self.need_login = False
 
@@ -101,22 +112,19 @@ class NetworkManager:
 
     @staticmethod
     def generate_oauth_uri():
-        host = settings.SERVER_HOST
-        parsed_host = urlparse(host)
-
-        if parsed_host.hostname == "localhost":
-            host = host.replace("localhost", "127.0.0.1")
+        host = get_current_host()
 
         return (
             f"https://open.trovo.live/page/login.html"
             f"?client_id={settings.TROVO_CLIENT_ID}"
             f"&response_type=code"
-            f"&scope={'+'.join(scopes)}"
+            f"&scope={'+'.join(SCOPES)}"
             f"&redirect_uri={host}/bot/oauth"
         )
 
     async def refresh(self):
-        refresh_token = get_config(self.get_db(), "refresh_token")
+        with next(get_db()) as session:
+            refresh_token = get_config(session, "refresh_token")
         if not refresh_token:
             return
 
@@ -132,20 +140,16 @@ class NetworkManager:
         data = await request.json()
 
         if "access_token" not in data.keys():
-            self.need_login = True
-            raise AuthError()
+            await self._raise_auth_error()
         await self.save_tokens(data["access_token"], data["refresh_token"])
         self.need_login = False
 
     async def save_tokens(self, access: str, refresh: str):
         if refresh:
-            set_config(self.get_db(), "refresh_token", refresh)
+            with next(get_db()) as session:
+                set_config(session, "refresh_token", refresh)
         self.access_token = access
-        self.ready = True
-
-    @staticmethod
-    def get_db():
-        return next(get_db())
+        self.ready.set()
 
     @staticmethod
     def prepare_url(url: str):
@@ -165,27 +169,32 @@ class NetworkManager:
         async with ClientSession() as session:
             return await self.request(session, "DELETE", url, **kwargs)
 
-    async def request(self, session: ClientSession, method: str, url: str, **kwargs):
+    async def request(self, session: ClientSession, method: str, url: str, headers=None, **kwargs):
+        if headers is None:
+            headers = {}
+
         if not url.startswith("http"):
             url = self.prepare_url(url)
             url = f"{settings.TROVO_API_HOST}{url}"
 
-        if not kwargs.get("headers"):
-            kwargs["headers"] = {}
-        kwargs["headers"] = {**kwargs["headers"], **self.get_headers()}
+        headers = {**headers, **self.get_headers()}
 
-        res = await session.request(method, url, **kwargs)
+        res = await session.request(method, url, headers=headers, **kwargs)
 
         logger.info(await res.text())
 
         with contextlib.suppress(JSONDecodeError, ContentTypeError):
             data = await res.json()
 
-            if data.get("status") in (INVALID_ACCESS_TOKEN, EXPIRED_ACCESS_TOKEN):
+            if data.get("status") in ACCESS_TOKEN_ERRORS:
                 await self.refresh()
                 return await self.request(session, method, url, **kwargs)
-            elif data.get("status") in (INVALID_REFRESH_TOKEN, EXPIRED_REFRESH_TOKEN):
-                self.ready = False
-                raise AuthError()
+            elif data.get("status") in REFRESH_TOKEN_ERRORS:
+                await self._raise_auth_error()
 
         return res
+
+    async def _raise_auth_error(self):
+        self.need_login = True
+        self.ready.clear()
+        raise AuthError()

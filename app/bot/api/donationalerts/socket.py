@@ -10,34 +10,21 @@ from app.singleton import Singleton
 from .headers import da_headers
 
 
+async def get_da_token():
+    with next(get_db()) as db:
+        token = get_config(db, "da_token")
+    return token
+
+
 class DASocket(AsyncClient, metaclass=Singleton):
     api = Api()
 
     _current_media_task: asyncio.Task | None
 
-    def __init__(
-        self,
-        reconnection=True,
-        reconnection_attempts=0,
-        reconnection_delay=1,
-        reconnection_delay_max=5,
-        randomization_factor=0.5,
-        logger=True,
-        engineio_logger=True,
-        binary=False,
-        json=None,
-        **kwargs,
-    ):
+    def __init__(self, logger=True, engineio_logger=False, **kwargs):
         super().__init__(
-            reconnection=reconnection,
-            reconnection_attempts=reconnection_attempts,
-            reconnection_delay=reconnection_delay,
-            reconnection_delay_max=reconnection_delay_max,
-            randomization_factor=randomization_factor,
             logger=logger,
             engineio_logger=engineio_logger,
-            binary=binary,
-            json=json,
             **kwargs,
         )
         self._current_media_task = None
@@ -48,8 +35,7 @@ class DASocket(AsyncClient, metaclass=Singleton):
         url="wss://socket10.donationalerts.ru:443",
         transports=None,
         headers=da_headers,
-        *args,
-        **kwargs,
+        *args, **kwargs,
     ):
         if transports is None:
             transports = ["polling"]
@@ -60,8 +46,7 @@ class DASocket(AsyncClient, metaclass=Singleton):
 
         logger.info("DASocket connected")
 
-        with next(get_db()) as db:
-            token = get_config(db, "da_token")
+        token = await get_da_token()
 
         await self.emit("add-user", {"token": token, "type": "minor"})
         await self.start_media_loop()
@@ -75,18 +60,15 @@ class DASocket(AsyncClient, metaclass=Singleton):
         await self.start_media_loop()
 
     async def start_media_loop(self):
-        logger.info("DASocket media_loop started")
+        logger.info("DASocket media_loop starting")
+
         self._current_media_task = asyncio.create_task(self.media_loop())
 
     async def media_loop(self):
         while self.connected:
-            with next(get_db()) as db:
-                token = get_config(db, "da_token")
+            token = await get_da_token()
 
-            res = await self.api.get_channel_info(self.api.network.channel_id)
-            data = await res.json()
-
-            if data.get("is_live"):
+            if await self.api.is_live(self.api.network.channel_id):
                 await self.emit_get_current_media(token)
 
             await asyncio.sleep(30)

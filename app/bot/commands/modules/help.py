@@ -7,6 +7,8 @@ class HelpCommand(Command):
 
     name = "help"
 
+    aliases = ["commands", "команды"]
+
     usage = "!help [имя команды]"
     example = "!help | !help отчикрыжить"
 

@@ -1,13 +1,11 @@
 from sqlalchemy.orm import Session
 
 from app import crud
-from app import schemas
 from app.bot.api import Api
 from app.bot.api.schemas import Message
 from app.bot.commands import Command
 from app.bot.exceptions import IncorrectUsage
 from app.bot.utils import calc_dices_result, create_massban_entry
-from .controllers.massban import MassBanController
 
 
 class MassCubeCommand(Command):
@@ -27,34 +25,26 @@ class MassCubeCommand(Command):
         api = Api()
         args = parts[1:]
 
-        try:
-            if len(args) < 2:
-                raise IncorrectUsage
+        if len(args) < 2:
+            raise IncorrectUsage
 
-            target_role, amount, *trigger_text = args
-            target_role = target_role.removeprefix("@").lower()
-            trigger_text = " ".join(trigger_text).lower()
+        target_role, amount, *trigger_text = args
+        target_role = target_role.removeprefix("@").lower()
+        trigger_text = " ".join(trigger_text).lower()
 
-            if target_role in ["streamer", "mod", "supermod"]:
-                await api.send(
-                    f"@{message.nick_name} анус свой отпежь, пёс",
-                    message.channel_id,
-                )
-                return
-            elif target_role == "*":
-                target_role = None
-
-            if amount.isnumeric():
-                amount = int(amount)
-            else:
-                raise IncorrectUsage
-
-        except IncorrectUsage:
+        if target_role in ["streamer", "mod", "supermod"]:
             await api.send(
-                f"Использование: {self.usage}",
+                f"@{message.nick_name} анус свой отпежь, пёс",
                 message.channel_id,
             )
             return
+        elif target_role == "*":
+            target_role = None
+
+        if amount.isnumeric():
+            amount = int(amount)
+        else:
+            raise IncorrectUsage
 
         dice_amount = crud.dice_amount.get_by_owner(db, user_id=message.sender_id)
 

@@ -100,6 +100,10 @@ class Message(BaseModel):
         # message_id is presented as "messageId_channelId_senderId_..."
         return self.message_id.split("_")[1]
 
+    @property
+    def is_spell(self):
+        return self.type in [MessageType.SPELL, MessageType.SPELL_CUSTOM]
+
 
 class WebSocketMessageData(BaseModel):
     eid: str

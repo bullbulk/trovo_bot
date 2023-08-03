@@ -3,7 +3,9 @@ from typing import TypeVar
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
+from app.bot.api import Api
 from app.bot.api.schemas import Message
+from app.bot.exceptions import IncorrectUsage
 from app.config import settings
 from .interface import CommandInterface
 from .registry import CommandRegistry
@@ -27,15 +29,17 @@ class Command(CommandInterface, metaclass=CommandRegistry):
     async def process(self, parts: list[str], message: Message):
         if not self.has_perms(message):
             return
-        db = self.get_db()
+
+        db = next(get_db())
+        api = Api()
+
         try:
             await self.handle(parts=parts, message=message, db=db)
+        except IncorrectUsage:
+            await api.send(f"Использование: {self.usage}", message.channel_id)
         finally:
             db.close()
 
-    @staticmethod
-    def get_db():
-        return next(get_db())
 
     def get_help(self):
         text = f"Команда !{self.name} @@ {self.__doc__}"

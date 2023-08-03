@@ -13,7 +13,7 @@ class Api(metaclass=Singleton):
     network: NetworkManager
 
     def __init__(self):
-        self.ready = False
+        self.ready = asyncio.Event()
         self.network = NetworkManager()
 
         asyncio.create_task(self.start())
@@ -22,10 +22,12 @@ class Api(metaclass=Singleton):
         try:
             await self.network.refresh()
         except AuthError:
-            while not self.network.ready:
-                await asyncio.sleep(0.1)
+            await self.network.wait_until_ready()
         self.chat = ChatHandler(self.network)
-        self.ready = True
+        self.ready.set()
+
+    async def wait_until_ready(self):
+        await self.ready.wait()
 
     async def get_user_info(self):
         return await self.network.get("/getuserinfo")
@@ -67,3 +69,8 @@ class Api(metaclass=Singleton):
         return await self.network.post(
             "/channels/command", json={"command": command, "channel_id": channel_id}
         )
+
+    async def is_live(self, channel_id: int):
+        res = await self.get_channel_info(channel_id)
+        data = await res.json()
+        return data.get("is_live", False)
