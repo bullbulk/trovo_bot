@@ -15,4 +15,5 @@ def set_config(db: Session, key: str, value: str):
 
 
 def get_config(db: Session, key: str):
-    return db.query(Config).filter(Config.name == key).first()
+    obj = db.query(Config).filter(Config.name == key).first()
+    return obj.value if obj else None
