@@ -87,7 +87,9 @@ class Bot:
             await self.process_mana_spell(message)
 
     async def process_mana_spell(self, message: Message):
-        total_mana = message.content["num"] * message.content["gift_value"]
+        gift_num = message.content.get("num", 1)
+        gift_value = message.content["gift_value"]
+        total_mana = gift_num * gift_value
 
         if total_mana >= 20000:
             await self.grant_role(message, "НАЧИНАЮЩИЙ КОЛДУН")
@@ -107,7 +109,7 @@ class Bot:
         logger.info(f"Processing spell {selected_gift}. Message: {message.content}")
 
         if (
-            message.content["num"] >= selected_gift["required_amount"]
+            gift_num >= selected_gift["required_amount"]
             and (selected_role := selected_gift["role"]) not in message.roles
         ):
             await self.grant_role(message, selected_role)
