@@ -6,6 +6,7 @@ from loguru import logger
 from app.api.deps import get_db
 from app.models import DiceAmount
 from .api import Api
+from .api.donationalerts import da_sio
 from .api.schemas import Message, MessageType
 from .commands import CommandRegistry
 from .commands.modules.cubes.controllers.massban import MassBanController
@@ -25,7 +26,12 @@ class Bot:
             await asyncio.sleep(0.1)
 
         await self.api.chat.connect()
+        asyncio.create_task(self.connect_da())
         self.api.chat.add_listener(self.listen)
+
+    async def connect_da(self):
+        await self.api.chat.connecting_task
+        # await da_sio.connect()
 
     async def rocket_rank_job(self):
         res = await self.api.get_channel_info(self.api.network.channel_id)
