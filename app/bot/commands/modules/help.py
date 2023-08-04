@@ -23,7 +23,16 @@ class HelpCommand(Command):
             if v.has_perms(message)
         }
 
-        response = f"Команды: {', '.join(sorted(list(commands.keys())))}"
+        unique_commands = set(commands.values())
+
+        commands_prompts = []
+        for command in list(unique_commands):
+            s = f"{command.name}"
+            if command.aliases:
+                s += f" ({', '.join(command.aliases)})"
+            commands_prompts.append(s)
+
+        response = f"Команды: {', '.join(sorted(list(commands_prompts)))}"
         if len(args) != 0:
             if command := commands.get(args[0].lower()):
                 response = command.get_help()

@@ -13,7 +13,7 @@ from .registry import CommandRegistry
 
 class Command(CommandInterface, metaclass=CommandRegistry):
     name: str
-    aliases: list[str]
+    aliases: list[str] = []
 
     disabled = False
     owner_only = False
@@ -22,6 +22,12 @@ class Command(CommandInterface, metaclass=CommandRegistry):
 
     usage = ""
     example = ""
+
+    def __hash__(self):
+        return hash(self.name)
+
+    def __eq__(self, other):
+        return self.name == other.name
 
     async def handle(self, parts: list[str], message: Message, db: Session):
         pass

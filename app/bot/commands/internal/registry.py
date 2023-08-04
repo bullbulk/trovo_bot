@@ -4,20 +4,21 @@ class CommandRegistry(type):
     def __new__(cls, *args, **kwargs):
         class_ = super().__new__(cls, *args, **kwargs)
 
-        if not (hasattr(class_, "name") or hasattr(class_, "aliases")):
-            return class_
-
         name = getattr(class_, "name", None)
         aliases = getattr(class_, "aliases", None)
+
+        if (
+            name is None or aliases is None
+        ):
+            return class_
+
 
         if not (name or aliases):
             raise ValueError("Command should have name or aliases set")
 
         aliases = aliases or []
-        if name:
-            aliases.insert(0, name)
 
-        for alias in aliases:
+        for alias in [name, *aliases]:
             cls.commands[alias] = class_()
 
         return class_
