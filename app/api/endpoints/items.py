@@ -3,9 +3,9 @@ from typing import Any, List
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app import models, schemas
+from app import schemas
 from app.api import deps
-from app.crud.base import CRUDBase
+from app.crud import track
 
 router = APIRouter()
 
@@ -18,6 +18,6 @@ def read_all(
     limit: int = 10000,
 ) -> Any:
     """
-    Retrieve all tracks.
+    Retrieve latest tracks.
     """
-    return CRUDBase(models.Track).get_multi(db, skip=skip, limit=limit)
+    return track.get_latest_multi(db, skip=skip, limit=limit)
