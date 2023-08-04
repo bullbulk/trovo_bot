@@ -11,7 +11,7 @@ router = APIRouter()
 
 
 
-@router.get("/", response_model=List[schemas.Track])
+@router.get("/tracks", response_model=List[schemas.Track])
 def read_all(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
