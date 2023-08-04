@@ -1,8 +1,7 @@
 from typing import Any
 
-from pydantic import AnyHttpUrl, BaseSettings, EmailStr, validator, PostgresDsn, AnyUrl
-
 import dotenv
+from pydantic import AnyHttpUrl, BaseSettings, EmailStr, validator, PostgresDsn, AnyUrl
 
 dotenv.load_dotenv()
 
@@ -18,7 +17,7 @@ class Settings(BaseSettings):
     # BACKEND_CORS_ORIGINS is a JSON-formatted list of origins
     # e.g: '["http://localhost", "http://localhost:4200", "http://localhost:3000", \
     # "http://localhost:8080", "http://local.dockertoolbox.tiangolo.com"]'
-    BACKEND_CORS_ORIGINS: list[AnyHttpUrl] = []
+    BACKEND_CORS_ORIGINS: list[AnyHttpUrl] = ["http://localhost:5173", "https://g1deon.bullbulk.ru/tracks"]
 
     @validator("BACKEND_CORS_ORIGINS", pre=True)
     def assemble_cors_origins(cls, v: str | list[str]) -> list[str] | str:  # noqa
@@ -38,7 +37,7 @@ class Settings(BaseSettings):
 
     @validator("DATABASE_URI", pre=True)
     def assemble_db_connection(
-        cls, v: str | None, values: dict[str, Any]
+            cls, v: str | None, values: dict[str, Any]
     ) -> Any:  # noqa
         if isinstance(v, str):
             return v
