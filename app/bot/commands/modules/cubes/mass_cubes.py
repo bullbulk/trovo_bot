@@ -96,7 +96,7 @@ class MassCubeCommand(Command):
             create_massban_entry(
                 db=db,
                 message=message,
-                amount=amount,
+                amount=success_dices_num,
                 trigger_text=trigger_text,
                 target_role=target_role,
             )
