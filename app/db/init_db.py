@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 from app import crud
 from app import schemas
-from app.config import settings
+from app.utils.config import settings
 
 
 # make sure all SQL Alchemy models are imported (app.db.base) before initializing DB

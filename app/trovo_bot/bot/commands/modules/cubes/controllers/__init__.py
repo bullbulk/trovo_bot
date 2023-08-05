@@ -1,0 +1,1 @@
+from .massban import MassBanController

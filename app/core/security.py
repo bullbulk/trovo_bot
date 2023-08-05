@@ -4,7 +4,7 @@ from typing import Any, Union
 import jwt
 from passlib.context import CryptContext
 
-from app.config import settings
+from app.utils.config import settings
 
 from datetime import timezone
 
