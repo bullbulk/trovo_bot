@@ -1,4 +1,4 @@
-from app.trovo_bot.bot.api import TrovoApi
+from app.trovo_bot.bot.trovo import TrovoApi
 from app.trovo_bot.bot.commands import Command
 
 

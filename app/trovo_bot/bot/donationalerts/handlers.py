@@ -7,7 +7,7 @@ from loguru import logger
 
 from app.api.deps import get_db
 from app.models import Track
-from app.trovo_bot.bot.api import TrovoApi
+from app.trovo_bot.bot.trovo import TrovoApi
 from .socket import da_sio
 
 api = TrovoApi()

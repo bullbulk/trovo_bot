@@ -7,7 +7,7 @@ from unidecode import unidecode
 
 from app import crud
 from app.schemas import MassDiceEntry
-from .api.trovo import schemas
+from .trovo import schemas
 from .commands.modules.cubes import MassBanController
 
 

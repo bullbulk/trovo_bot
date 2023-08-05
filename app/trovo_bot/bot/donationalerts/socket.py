@@ -5,7 +5,7 @@ from socketio.asyncio_client import AsyncClient
 
 from app.api.deps import get_db
 from app.core.config import get_config
-from app.trovo_bot.bot.api import TrovoApi
+from app.trovo_bot.bot.trovo import TrovoApi
 from app.utils.singleton import Singleton
 from .headers import da_headers
 
@@ -71,7 +71,7 @@ class DASocket(AsyncClient, metaclass=Singleton):
             if await self.api.is_live(self.api.network.channel_id):
                 await self.emit_get_current_media(token)
 
-            await asyncio.sleep(30)
+            await asyncio.sleep(60)
 
     async def emit_get_current_media(self, token):
         logger.info("Sending emit: get-current-media")

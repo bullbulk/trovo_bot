@@ -3,7 +3,7 @@ from abc import abstractmethod
 from sqlalchemy.orm import Session
 
 from .registry import CommandRegistry
-from ...api.trovo.schemas import Message
+from ...trovo.schemas import Message
 
 
 class CommandInterface(metaclass=CommandRegistry):

@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
-from app.trovo_bot.bot.api import TrovoApi
-from app.trovo_bot.bot.api.trovo.schemas import Message
+from app.trovo_bot.bot.trovo import TrovoApi
+from app.trovo_bot.bot.trovo.schemas import Message
 from app.trovo_bot.bot.commands import Command
 from app.trovo_bot.bot.exceptions import IncorrectUsage
 from app.trovo_bot.bot.utils import create_massban_entry

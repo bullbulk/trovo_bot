@@ -3,12 +3,12 @@ from typing import TypeVar
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
-from app.trovo_bot.bot.api import TrovoApi
+from app.trovo_bot.bot.trovo import TrovoApi
 from app.trovo_bot.bot.exceptions import IncorrectUsage
 from app.utils.config import settings
 from .interface import CommandInterface
 from .registry import CommandRegistry
-from ...api.trovo.schemas import Message
+from ...trovo.schemas import Message
 
 
 class Command(CommandInterface, metaclass=CommandRegistry):

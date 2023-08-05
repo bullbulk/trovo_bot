@@ -5,8 +5,8 @@ from loguru import logger
 
 from app.api.deps import get_db
 from app.models import DiceAmount
-from .api import TrovoApi
-from .api.trovo.schemas import Message, MessageType
+from .trovo import TrovoApi
+from .trovo.schemas import Message, MessageType
 from .commands import CommandRegistry
 from .commands.modules.cubes import MassBanController
 from .commands.modules.mana.utils import get_rank_message

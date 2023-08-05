@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 
 from app import crud
 from app import schemas
-from app.trovo_bot.bot.api import TrovoApi
-from app.trovo_bot.bot.api.trovo.schemas import Message
+from app.trovo_bot.bot.trovo import TrovoApi
+from app.trovo_bot.bot.trovo.schemas import Message
 from app.models import MassDiceEntry, MassDiceBanRecord
 
 
