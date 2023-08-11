@@ -52,7 +52,7 @@ class Bot:
             self.rocket_rank_job,
             "cron",
             minute="50-59",
-            hour="0-21",
+            hour="5-21",
             day_of_week="0-5",
         )
         self.scheduler.add_job(
@@ -60,7 +60,7 @@ class Bot:
             "cron",
             minute="59",
             second="30",
-            hour="0-21",
+            hour="5-21",
             day_of_week="0-5",
         )
 
