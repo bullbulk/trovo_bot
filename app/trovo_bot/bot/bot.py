@@ -5,11 +5,11 @@ from loguru import logger
 
 from app.api.deps import get_db
 from app.models import DiceAmount
-from .trovo import TrovoApi
-from .trovo.schemas import Message, MessageType
 from .commands import CommandRegistry
 from .commands.modules.cubes import MassBanController
 from .commands.modules.mana.utils import get_rank_message
+from .trovo import TrovoApi
+from .trovo.schemas import Message, MessageType
 
 
 class Bot:
@@ -30,7 +30,6 @@ class Bot:
         asyncio.create_task(self.connect_da())
 
         self.api.chat.add_listener(self.listen)
-        print(await self.api.get_random_chatter(self.api.network.channel_id))
 
     async def connect_da(self):
         # await da_sio.connect()
