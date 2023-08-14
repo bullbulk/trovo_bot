@@ -1,4 +1,5 @@
 import asyncio
+import random
 
 from app.utils.singleton import Singleton
 from .chat import ChatHandler
@@ -72,3 +73,16 @@ class TrovoApi(metaclass=Singleton):
         res = await self.get_channel_info(channel_id)
         data = await res.json()
         return data.get("is_live", False)
+
+    async def get_viewers(self, channel_id: int, limit: int = 100, cursor: int = 0):
+        print(f"/channels/{channel_id}/viewers")
+        return await self.network.post(
+            f"/channels/{channel_id}/viewers",
+            json={"limit": limit, "cursor": cursor},
+        )
+
+    async def get_random_chatter(self, channel_id: int) -> str | None:
+        data = await self.get_viewers(channel_id)
+        users = await data.json()
+        chatters = users.get("chatters", {}).get("all", {}).get("viewers", [])
+        return random.choice(chatters) if chatters else None

@@ -25,13 +25,16 @@ class Bot:
         await self.api.wait_until_ready()
 
         await self.api.chat.connect()
+        await self.api.chat.connecting_task
+
         asyncio.create_task(self.connect_da())
 
         self.api.chat.add_listener(self.listen)
+        print(await self.api.get_random_chatter(self.api.network.channel_id))
 
     async def connect_da(self):
-        await self.api.chat.connecting_task
         # await da_sio.connect()
+        ...
 
     async def rocket_rank_job(self):
         if await self.api.is_live(self.api.network.channel_id):
