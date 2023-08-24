@@ -24,6 +24,8 @@ async def on_media(data):
 
 
 async def handle_current_media_response(data: dict):
+    logger.debug(data)
+
     if (media := data["media"]) and (is_paused := data.get("is_paused")) is not None:
         if not is_paused:
             await api.send(
