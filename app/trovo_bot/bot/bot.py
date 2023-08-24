@@ -8,6 +8,7 @@ from app.models import DiceAmount
 from .commands import CommandRegistry
 from .commands.modules.cubes import MassBanController
 from .commands.modules.mana.utils import get_rank_message
+from .donationalerts import da_sio
 from .trovo import TrovoApi
 from .trovo.schemas import Message, MessageType
 
@@ -32,8 +33,7 @@ class Bot:
         self.api.chat.add_listener(self.listen)
 
     async def connect_da(self):
-        # await da_sio.connect()
-        ...
+        await da_sio.connect()
 
     async def rocket_rank_job(self):
         if await self.api.is_live(self.api.network.channel_id):
