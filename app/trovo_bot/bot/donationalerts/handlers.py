@@ -17,7 +17,7 @@ api = TrovoApi()
 async def on_media(data):
     data = json.loads(data)
     if action := data.get("action"):
-        logger.info(f"Received media event. Action: {action}")
+        logger.info(f"Received media event. Action: {action}, {data}")
 
         if handler := handlers.get(action):
             asyncio.create_task(handler(data))
