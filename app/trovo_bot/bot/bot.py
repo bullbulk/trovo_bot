@@ -33,7 +33,8 @@ class Bot:
         self.api.chat.add_listener(self.listen)
 
     async def connect_da(self):
-        await da_sio.connect()
+        # await da_sio.connect()
+        ...
 
     async def rocket_rank_job(self):
         if await self.api.is_live(self.api.network.channel_id):
@@ -93,7 +94,7 @@ class Bot:
         total_mana = gift_num * gift_value
 
         if total_mana >= 20000:
-            await self.grant_role(message, "НАЧИНАЮЩИЙ КОЛДУН")
+            await self.grant_role(message, "HАЧИНАЮЩИЙ КОЛДУН")
 
         gifts = {
             "omnomnom": {"required_amount": 1, "role": "ОМНОМНОМ"},
