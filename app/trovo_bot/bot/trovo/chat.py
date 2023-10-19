@@ -88,6 +88,8 @@ class ChatHandler:
     async def listen(self):
         try:
             async for message in self.socket:
+                logger.info(message.origin_string)
+
                 if message.type != WebSocketMessageType.CHAT:
                     continue
 
@@ -107,7 +109,7 @@ class ChatHandler:
             self.running = False
             try:
                 return await self.connect()
-            except Exception: # noqa
+            except Exception:  # noqa
                 logger.error("Unable to connect")
-        except Exception: # noqa
+        except Exception:  # noqa
             logger.error(traceback.format_exc())
