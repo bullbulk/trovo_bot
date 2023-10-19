@@ -47,15 +47,20 @@ class AddroleCommand(Command):
     name = "addrole"
     moderator_only = True
 
-    usage = "!addrole <Роль> [*никнеймы]"
+    usage = "!addrole <Роль> <*никнеймы>"
     example = "!addrole Чемпион bullbulk G1deonTV"
 
     async def handle(self, parts: list[str], message, db):
         await super().handle(parts, message, db)
 
+        args = parts[1:]
+
+        if len(args) <= 1:
+            raise IncorrectUsage
+
         api = TrovoApi()
-        role = parts[1]
-        nicknames = parts[2:]
+        role = args[0]
+        nicknames = args[1:]
 
         for nickname in nicknames:
             nickname = nickname.removeprefix("@")
@@ -72,7 +77,7 @@ class RemoveroleCommand(Command):
     name = "removerole"
     moderator_only = True
 
-    usage = "!removerole <Роль> [*никнеймы]"
+    usage = "!removerole <Роль> <*никнеймы>"
     example = "!removerole Чемпион bullbulk G1deonTV"
 
     async def handle(self, parts: list[str], message, db):
@@ -80,7 +85,7 @@ class RemoveroleCommand(Command):
 
         args = parts[1:]
 
-        if len(args) < 2:
+        if len(args) <= 1:
             raise IncorrectUsage
 
         api = TrovoApi()
