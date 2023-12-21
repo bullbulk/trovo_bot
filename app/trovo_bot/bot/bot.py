@@ -8,7 +8,6 @@ from app.models import DiceAmount
 from .commands import CommandRegistry
 from .commands.modules.cubes import MassBanController
 from .commands.modules.mana.utils import get_rank_message
-from .donationalerts import da_sio
 from .trovo import TrovoApi
 from .trovo.schemas import Message, MessageType
 
@@ -94,7 +93,7 @@ class Bot:
         total_mana = gift_num * gift_value
 
         if total_mana >= 20000:
-            await self.grant_role(message, "HАЧИНАЮЩИЙ КОЛДУН")
+            await self.grant_role(message.nick_name, "HАЧИНАЮЩИЙ КОЛДУН", message.channel_id)
 
         gifts = {
             "omnomnom": {"required_amount": 1, "role": "ОМНОМНОМ"},
@@ -114,28 +113,29 @@ class Bot:
             gift_num >= selected_gift["required_amount"]
             and (selected_role := selected_gift["role"]) not in message.roles
         ):
-            await self.grant_role(message, selected_role)
+            await self.grant_role(message.nick_name, selected_role, message.channel_id)
 
-    async def grant_role(self, message: Message, role: str):
-        if role in message.roles:
-            return
+    async def grant_role(self, nickname: str, role: str, channel_id: int, send_message: bool = True):
+        logger.info(f"Granting role {role} for {nickname} in channel {channel_id}")
 
         res = await self.api.command(
-            f"addrole {role} {message.nick_name}",
-            message.channel_id,
+            f"addrole {role} {nickname}",
+            channel_id,
         )
         data = await res.json()
-        if data.get("is_success", False):
-            await self.api.send(
-                f'@{message.nick_name} получает роль "{role}"!',
-                message.channel_id,
-            )
-        else:
-            await self.api.send(
-                f'У меня не получилось выдать роль "{role}" для @{message.nick_name}. '
-                f"Может быть, я не имею права добавлять роли?",
-                message.channel_id,
-            )
+
+        if send_message:
+            if data.get("is_success", False):
+                await self.api.send(
+                    f'@{nickname} получает роль "{role}"!',
+                    channel_id,
+                )
+            else:
+                await self.api.send(
+                    f'У меня не получилось выдать роль "{role}" для @{nickname}. '
+                    f"Может быть, я не имею права добавлять роли?",
+                    channel_id,
+                )
 
     async def process_dice_spell(self, message: Message):
         num = message.content["num"]
@@ -168,6 +168,17 @@ class Bot:
 
         if command := CommandRegistry.get(content_parts[0].lower()):
             await command.process(content_parts, message)
+
+    async def process_activity_message(self, message: Message):
+        if message.content_data.get("activity_topic") == "shooter_space_boss_defeated":
+            pass
+            # return await self.grant_role(message, "SHOOTER")
+        if (
+            message.content_data.get("activity_ext", {}).get("title", {}).get("i18nKey")
+        ) == "pk.wintitle":
+            for user in message.content_data["at"]:
+                nickname = user["name"]
+                await self.grant_role(nickname, "Чемпион", message.channel_id, send_message=False)
 
     async def handle_message_echo(self, message: Message):
         echoes = {
