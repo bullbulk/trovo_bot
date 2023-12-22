@@ -173,9 +173,11 @@ class Bot:
         if message.content_data.get("activity_topic") == "shooter_space_boss_defeated":
             pass
             # return await self.grant_role(message, "SHOOTER")
+        logger.info(message.content_data)
         if (
             message.content_data.get("activity_ext", {}).get("title", {}).get("i18nKey")
         ) == "pk.wintitle":
+            logger.info("Captured PK Win")
             for user in message.content_data["at"]:
                 nickname = user["name"]
                 await self.grant_role(nickname, "Чемпион", message.channel_id, send_message=False)
