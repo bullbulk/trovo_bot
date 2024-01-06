@@ -159,7 +159,10 @@ class Bot:
         await self.handle_message_echo(message)
 
         if message.content.startswith("!"):
-            await self.process_command(message)
+            return await self.process_command(message)
+
+        if message.type == MessageType.EVENT:
+            return await self.process_event_message(message)
 
     async def process_command(self, message: Message):
         content_parts = message.content.removeprefix("!").split()
@@ -169,7 +172,7 @@ class Bot:
         if command := CommandRegistry.get(content_parts[0].lower()):
             await command.process(content_parts, message)
 
-    async def process_activity_message(self, message: Message):
+    async def process_event_message(self, message: Message):
         if message.content_data.get("activity_topic") == "shooter_space_boss_defeated":
             pass
             # return await self.grant_role(message, "SHOOTER")
