@@ -63,7 +63,7 @@ class ChatHandler:
         logger.info("Connecting")
 
         try:
-            await asyncio.wait_for(self._init_connection(), 5)
+            await asyncio.wait_for(self._init_connection(), 20)
         except asyncio.TimeoutError:
             logger.error("Connection failed, retrying")
             return await self._connect()
