@@ -23,7 +23,7 @@ class InvokeCommand(Command):
     """Выполнить команду от имени бота. Доступно только пользователям с ролью "модератор" и выше"""
 
     name = "invoke"
-    moderator_only = True
+    owner_only = True
 
     usage = "!invoke <имя команды> [*аргументы]"
     example = "!invoke ban bullbulk 30"
