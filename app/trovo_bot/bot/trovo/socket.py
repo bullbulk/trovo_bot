@@ -3,10 +3,11 @@ import json
 import time
 import traceback
 from asyncio import Future
-from typing import Optional
+from typing import Optional, Iterable
 
 from loguru import logger
 from pydantic import ValidationError
+from websockets import ClientConnection
 from websockets.legacy.client import WebSocketClientProtocol
 
 from app.utils import get_rand_string
@@ -22,7 +23,7 @@ class PingController:
 
     def __init__(self, socket):
         self.socket = socket
-        self.pings: dict[str, [Future, float]] = {}
+        self.pings: dict[str, Iterable[Future, float]] = {}
 
     def start(self):
         self._task = asyncio.create_task(self.loop())
@@ -69,16 +70,16 @@ class PingController:
             del self.pings[message.nonce]
 
 
-class ChatSocketProtocol(WebSocketClientProtocol):
+class ChatSocketConnection(ClientConnection):
     ping_controller: PingController | None
     network: NetworkManager
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.ping_controller = None
 
-    def connection_open(self) -> None:
-        super().connection_open()
+    def connection_made(self, transport) -> None:
+        super().connection_made(transport)
 
         self.ping_controller = PingController(self)
         self.ping_controller.start()
@@ -97,14 +98,15 @@ class ChatSocketProtocol(WebSocketClientProtocol):
             self.ping_controller.stop()
         return super().connection_lost(exc)
 
-    async def recv(self) -> WebSocketMessage:
-        message = await super().recv()
+    async def recv(self, decode = None) -> WebSocketMessage:
+        message = await super().recv(decode)
         try:
             data = WebSocketMessage(origin_string=message, **json.loads(message))
             if data.nonce and data.type in (
                 WebSocketMessageType.PONG,
                 WebSocketMessageType.RESPONSE,
             ):
+                print(data)
                 if gap := data.data.get("gap"):
                     self.ping_controller.set_ping_gap(gap)
                 await self.ping_controller.process_pong(data)
