@@ -35,7 +35,7 @@ class AuthError(Exception):
 
 
 def get_current_host():
-    host = settings.SERVER_HOST
+    host = str(settings.SERVER_HOST)
     parsed_host = urlparse(host)
     if parsed_host.hostname == "localhost":
         host = host.replace("localhost", "127.0.0.1")
@@ -84,15 +84,15 @@ class NetworkManager:
 
     async def exchange(self, code):
         host = get_current_host()
-
-        request = await self.post(
-            "/exchangetoken",
-            json={
+        body = {
                 "client_secret": settings.TROVO_CLIENT_SECRET,
                 "grant_type": "authorization_code",
                 "code": code,
-                "redirect_uri": f"{host}/bot/oauth",
-            },
+                "redirect_uri": f"{host}bot/oauth",
+            }
+        request = await self.post(
+            "/exchangetoken",
+            json=body,
         )
         data = await request.json()
         logger.info(data)
@@ -119,7 +119,7 @@ class NetworkManager:
             f"?client_id={settings.TROVO_CLIENT_ID}"
             f"&response_type=code"
             f"&scope={'+'.join(SCOPES)}"
-            f"&redirect_uri={host}/bot/oauth"
+            f"&redirect_uri={host}bot/oauth"
         )
 
     async def refresh(self):

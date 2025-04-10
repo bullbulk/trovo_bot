@@ -10,12 +10,14 @@ from .commands.modules.cubes import MassBanController
 from .commands.modules.mana.utils import get_rank_message
 from .trovo import TrovoApi
 from .trovo.schemas import Message, MessageType
+from app.utils.llm import OllamaChatController
 
 
 class Bot:
     def __init__(self):
         self.api = TrovoApi()
         self.db_session = next(get_db())
+        self.llm_controller = OllamaChatController()
         self.scheduler = None
 
         self.setup_scheduler()
@@ -164,6 +166,9 @@ class Bot:
         if message.type == MessageType.EVENT:
             return await self.process_event_message(message)
 
+        if message.content.lower().startswith("@jarvisbot"):
+            return await self.process_llm_request(message)
+
     async def process_command(self, message: Message):
         content_parts = message.content.removeprefix("!").split()
         if not content_parts:
@@ -184,6 +189,10 @@ class Bot:
             for user in message.content_data["at"]:
                 nickname = user["name"]
                 await self.grant_role(nickname, "Чемпион", message.channel_id, send_message=False)
+
+    async def process_llm_request(self, message: Message):
+        llm_response = await self.llm_controller.handle_message(message)
+        await self.api.send(llm_response, message.channel_id)
 
     async def handle_message_echo(self, message: Message):
         echoes = {

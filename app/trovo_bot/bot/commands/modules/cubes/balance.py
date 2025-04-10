@@ -21,7 +21,7 @@ class BalanceCommand(Command):
 
         if len(parts) > 1:
             target = parts[1].removeprefix("@")
-            if target not in ["fedorbot", "fedorbot2"]:
+            if target not in ["fedorbot", "fedorbot2", "jarvisbot"]:
                 res = await api.get_channel_info(username=target)
                 channel_info = await res.json()
 

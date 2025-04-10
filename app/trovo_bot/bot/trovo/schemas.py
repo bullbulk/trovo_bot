@@ -4,7 +4,7 @@ from enum import Enum
 from json import JSONDecodeError
 from typing import Literal, Any
 
-from pydantic import BaseModel, validator, root_validator
+from pydantic import BaseModel, validator, root_validator, Field, field_validator, ValidationError
 from unidecode import unidecode
 
 
@@ -60,21 +60,21 @@ class Message(BaseModel):
     type: MessageType
     content: dict[str, Any] | str
     nick_name: str
-    avatar: str | None
+    avatar: str | None = Field(default=None)
     sub_lv: SubLvl = SubLvl.L0
     sub_tier: Literal[0, 1, 2, 3] = 0
-    medals: list[str] = []
-    decos: list[str] = []
-    roles: list[str] = []
-    ascii_roles: list[str] = []
+    medals: list[str] = Field(default_factory=list)
+    decos: list[str] = Field(default_factory=list)
+    roles: list[str] = Field(default_factory=list)
+    ascii_roles: list[str] = Field(default_factory=list)
     message_id: str
-    sender_id: int | None
+    sender_id: int | None = Field(default=None)
     send_time: datetime
-    uid: int | None
-    user_name: str | None
-    content_data: dict[str, Any] = {}
+    uid: int | None = Field(default=None)
+    user_name: str | None = Field(default=None)
+    content_data: dict[str, Any] = Field(default_factory=dict)
     # custom_role: list[RoleData]
-    custom_role: str | None
+    custom_role: str | None = Field(default=None)
 
     @validator("sub_tier", pre=True)
     def validate_sub_tier(cls, v):  # noqa
@@ -126,6 +126,13 @@ class WebSocketMessage(BaseModel):
     origin_string: str
 
     type: WebSocketMessageType
-    channel_info: ChannelInfo | None
-    data: WebSocketMessageData | dict[str, Any] = {}
-    nonce: str | None
+    channel_info: ChannelInfo | None = Field(default=None)
+    data: WebSocketMessageData | dict[str, Any] = Field(default_factory=dict)
+    nonce: str | None = Field(default=None)
+
+    @field_validator("data")
+    def validate_data(cls, v: dict[str, Any]):
+        try:
+            return WebSocketMessageData(**v)
+        except ValidationError:
+            return v

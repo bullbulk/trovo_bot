@@ -4,9 +4,9 @@ import random
 from app.utils.singleton import Singleton
 from .chat import ChatHandler
 from .network import NetworkManager, AuthError
-from .socket import ChatSocketProtocol
+from .socket import ChatSocketConnection
 
-WEBSOCKET_CLASS = ChatSocketProtocol
+WEBSOCKET_CLASS = ChatSocketConnection
 
 
 class TrovoApi(metaclass=Singleton):

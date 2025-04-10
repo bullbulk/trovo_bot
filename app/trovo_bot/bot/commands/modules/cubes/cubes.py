@@ -23,7 +23,7 @@ class CubeCommand(Command):
 
         target = parts[1]
         target = target.removeprefix("@")
-        if target.lower() in ["fedorbot2", "fedorbot"]:
+        if target.lower() in ["fedorbot2", "fedorbot", "jarvisbot"]:
             await api.send(
                 f"@{message.nick_name} анус свой отпежь, пёс",
                 message.channel_id,

@@ -11,9 +11,9 @@ from websockets.exceptions import ConnectionClosedError
 from app.utils.config import settings
 from .network import NetworkManager
 from .schemas import Message, WebSocketMessageType
-from .socket import ChatSocketProtocol
+from .socket import ChatSocketConnection
 
-WEBSOCKET_PROTOCOL_CLASS = ChatSocketProtocol
+WEBSOCKET_CONNECTION_CLASS = ChatSocketConnection
 
 AsyncMessageCallback = TypeVar(
     "AsyncMessageCallback", bound=Callable[[Message], Awaitable[None]]
@@ -21,7 +21,7 @@ AsyncMessageCallback = TypeVar(
 
 
 class ChatHandler:
-    socket: ChatSocketProtocol | None
+    socket: ChatSocketConnection | None
     listener_task: Task | None
     connecting_task: Task | None
     listeners: list[AsyncMessageCallback]
@@ -74,8 +74,8 @@ class ChatHandler:
 
     async def _init_connection(self):
         self.socket = await websockets.connect(
-            settings.TROVO_WEBSOCKET_HOST,
-            create_protocol=WEBSOCKET_PROTOCOL_CLASS,
+            str(settings.TROVO_WEBSOCKET_HOST),
+            create_connection=WEBSOCKET_CONNECTION_CLASS,
             ping_interval=None,
             ping_timeout=None,
         )
