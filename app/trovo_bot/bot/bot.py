@@ -156,6 +156,9 @@ class Bot:
         db.close()
 
     async def process_message(self, message: Message):
+        if message.user_name.lower() in ["fedorbot", "fedorbot2", "jarvisbot"]:
+            return
+
         asyncio.create_task(MassBanController.handle_message(message, self.db_session))
 
         await self.handle_message_echo(message)
