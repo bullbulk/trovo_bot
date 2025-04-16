@@ -21,7 +21,7 @@ class OllamaChatController(ChatOllama):
         )
 
     async def handle_message(self, message: Message):
-        llm_request = f"{message.user_name}: {message.content}"
+        llm_request = f"{message.nick_name}: {message.content}"
         llm_request = llm_request.replace("SYSTEM \"", "").replace("system \"", "")
         logger.info(f"LLM Request: {llm_request}")
         llm_response = await self.ainvoke([("human", llm_request)])
