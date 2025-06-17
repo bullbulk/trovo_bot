@@ -95,13 +95,15 @@ class Bot:
         total_mana = gift_num * gift_value
 
         if total_mana >= 20000:
-            await self.grant_role(message.nick_name, "HАЧИНАЮЩИЙ КОЛДУН", message.channel_id)
+            await self.grant_role(message.nick_name, "HАЧИНАЮЩИЙ КОЛДУH", message.channel_id)
 
         gifts = {
-            "omnomnom": {"required_amount": 1, "role": "ОМНОМНОМ"},
+            "omnomnom": {"required_amount": 1, "role": "OМНОМНОМ"},
             "kfcislive": {"required_amount": 1, "role": "ДИЕТОЛОГ"},
-            "shaverma": {"required_amount": 1, "role": "ШАУРМАСТЕР"},
+            "shaverma": {"required_amount": 1, "role": "ШAУРМАСТЕР"},
             "Megalodon": {"required_amount": 999, "role": "МЕГАЛОМАСТЕР"},
+            "Pizza": {"required_amount": 1, "role": "ПИЦЦАМЕЙКЕР"},
+            "KAMEHb": {"required_amount": 20, "role": "КАМЕНЩИК"},
         }
 
         selected_gift = gifts.get(message.content["gift"])
