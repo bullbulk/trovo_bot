@@ -98,7 +98,7 @@ class Bot:
             matches = difflib.get_close_matches(user_roles[i].lower(), roles_lowered)
             if matches:
                 intersection += user_roles[i]
-        print("!!!!!!!!!!!", intersection)
+        logger.info("!!!!!!!!!!!", intersection)
 
         return intersection
 
@@ -271,7 +271,7 @@ class Bot:
         ]
 
         mana_intersection = self.get_roles_intersection(message.roles, mage_roles)
-        print("!!!!!!!!!!!!!!!!!!!",mana_intersection)
+
         if len(mana_intersection) > 1:
             for i in range(len(mana_intersection) - 1):
                 await self.revoke_role(
