@@ -92,6 +92,7 @@ class Bot:
 
     def get_roles_intersection(self, user_roles: list[str], roles: list[str]):
         roles_lowered = list(map(lambda x: x.lower(), roles))
+        logger.info(user_roles)
 
         intersection = []
         for i in range(len(user_roles)):
