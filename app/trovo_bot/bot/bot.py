@@ -90,13 +90,12 @@ class Bot:
         if message.content.get("value_type") == "Mana":
             await self.process_mana_spell(message)
 
-    def get_roles_intersection(self, user_roles: list[str], roles: list[str]):
-        user_roles = list(map(lambda x: x.lower(), user_roles))
-        roles = list(map(lambda x: x.lower(), roles))
+    def is_roles_intersected(self, user_roles: list[str], roles: list[str]):
+        roles_lowered = list(map(lambda x: x.lower(), roles))
 
         intersection = []
-        for role in user_roles:
-            matches = difflib.get_close_matches(role, roles)
+        for i in range(len(user_roles)):
+            matches = difflib.get_close_matches(user_roles[i].lower(), roles)
             if matches:
                 intersection += matches
 
@@ -128,7 +127,7 @@ class Bot:
             for i in range(len(mana_intersection) - 1):
                 await self.revoke_role(
                     message.nick_name,
-                    mana_intersection[i],
+                    mana_intersection[i].upper(),
                     message.channel_id,
                     send_message=False,
                 )
@@ -145,7 +144,7 @@ class Bot:
         gifts = {
             "omnomnom": {"required_amount": 1, "roles": ["ОМНОМНОМ", "OМНОМНОМ"]},
             "kfcislive": {"required_amount": 1, "roles": ["ДИЕТОЛОГ"]},
-            "shaverma": {"required_amount": 1, "roles": ["Перема", "перема", "перема"]},
+            "shaverma": {"required_amount": 1, "roles": ["ШАУРМАСТЕР", "ШAУРМАСТЕР"]},
             "KAMEHb": {"required_amount": 20, "roles": ["КАМЕНЩИК"]},
             "Pizza": {"required_amount": 1, "roles": ["ПИЦЦА"]},
         }
@@ -156,7 +155,7 @@ class Bot:
                 for i in range(len(intersection) - 1):
                     await self.revoke_role(
                         message.nick_name,
-                        intersection[i],
+                        intersection[i].upper(),
                         message.channel_id,
                         send_message=False,
                     )
@@ -271,11 +270,12 @@ class Bot:
         ]
 
         mana_intersection = self.get_roles_intersection(message.roles, mage_roles)
+        print("!!!!!!!!!!!!!!!!!!!",mana_intersection)
         if len(mana_intersection) > 1:
             for i in range(len(mana_intersection) - 1):
                 await self.revoke_role(
                     message.nick_name,
-                    mana_intersection[i],
+                    mana_intersection[i].upper(),
                     message.channel_id,
                     send_message=False,
                 )
