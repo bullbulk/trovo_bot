@@ -90,12 +90,12 @@ class Bot:
         if message.content.get("value_type") == "Mana":
             await self.process_mana_spell(message)
 
-    def is_roles_intersected(self, user_roles: list[str], roles: list[str]):
+    def get_roles_intersection(self, user_roles: list[str], roles: list[str]):
         roles_lowered = list(map(lambda x: x.lower(), roles))
 
         intersection = []
         for i in range(len(user_roles)):
-            matches = difflib.get_close_matches(user_roles[i].lower(), roles)
+            matches = difflib.get_close_matches(user_roles[i].lower(), roles_lowered)
             if matches:
                 intersection += matches
 
