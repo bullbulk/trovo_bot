@@ -98,6 +98,7 @@ class Bot:
             matches = difflib.get_close_matches(user_roles[i].lower(), roles_lowered)
             if matches:
                 intersection += matches
+        print("!!!!!!!!!!!", intersection)
 
         return intersection
 
