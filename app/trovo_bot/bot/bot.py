@@ -153,10 +153,10 @@ class Bot:
         for role in gifts.values():
             intersection = self.get_roles_intersection(message.roles, role["roles"])
             if len(intersection) > 1:
-                for i in range(len(intersection) - 1):
+                for i in range(1, len(intersection)):
                     await self.revoke_role(
                         message.nick_name,
-                        intersection[i].upper(),
+                        intersection[i],
                         message.channel_id,
                         send_message=False,
                     )
@@ -273,10 +273,10 @@ class Bot:
         mana_intersection = self.get_roles_intersection(message.roles, mage_roles)
 
         if len(mana_intersection) > 1:
-            for i in range(len(mana_intersection) - 1):
+            for i in range(1, len(mana_intersection)):
                 await self.revoke_role(
                     message.nick_name,
-                    mana_intersection[i].upper(),
+                    mana_intersection[i],
                     message.channel_id,
                     send_message=False,
                 )
