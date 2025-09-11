@@ -95,7 +95,7 @@ class Bot:
 
         intersection = []
         for i in range(len(user_roles)):
-            matches = difflib.get_close_matches(user_roles[i].lower(), roles_lowered)
+            matches = difflib.get_close_matches(user_roles[i].lower(), roles_lowered, n=10, cutoff=0.8)
             if matches:
                 intersection.append(user_roles[i])
         logger.info(f"!!!!!!!!!!! {intersection}")
