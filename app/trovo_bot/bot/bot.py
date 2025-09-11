@@ -263,6 +263,24 @@ class Bot:
         if message.content.lower().startswith("@jarvisbot"):
             return await self.process_llm_request(message)
 
+        mage_roles = [
+            "НАЧИНАЮЩИЙ КОЛДУН",
+            "HAЧИНАЮЩИЙ КОЛДУН",
+            "HАЧИНАЮЩИЙ КОЛДУН",
+            "HАЧИНАЮЩИЙ КОЛДУH",
+        ]
+
+        mana_intersection = self.get_roles_intersection(message.roles, mage_roles)
+        if mana_intersection > 1:
+            for i in range(len(mana_intersection) - 1):
+                await self.revoke_role(
+                    message.nick_name,
+                    mana_intersection[i],
+                    message.channel_id,
+                    send_message=False,
+                )
+
+
     async def process_command(self, message: Message):
         content_parts = message.content.removeprefix("!").split()
         if not content_parts:
