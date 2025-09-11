@@ -1,16 +1,17 @@
 import asyncio
+import difflib
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from loguru import logger
 
 from app.api.deps import get_db
 from app.models import DiceAmount
+from app.utils.llm import OllamaChatController
 from .commands import CommandRegistry
 from .commands.modules.cubes import MassBanController
 from .commands.modules.mana.utils import get_rank_message
 from .trovo import TrovoApi
 from .trovo.schemas import Message, MessageType
-from app.utils.llm import OllamaChatController
 
 
 class Bot:
@@ -89,22 +90,76 @@ class Bot:
         if message.content.get("value_type") == "Mana":
             await self.process_mana_spell(message)
 
+    def get_roles_intersection(self, user_roles: list[str], roles: list[str]):
+        user_roles = list(map(lambda x: x.lower(), user_roles))
+        roles = list(map(lambda x: x.lower(), roles))
+
+        intersection = []
+        for role in user_roles:
+            matches = difflib.get_close_matches(role, roles)
+            if matches:
+                intersection += matches
+
+        return intersection
+
+    async def grant_roles(self, nickname: str, roles: list[str], channel_id: int):
+        granted_roles = []
+        for role in roles:
+            data = await self.grant_role(nickname, role, channel_id)
+            if data.get("is_success", False):
+                granted_roles.append(role)
+                break
+        return granted_roles
+
     async def process_mana_spell(self, message: Message):
         gift_num = message.content.get("num", 1)
         gift_value = message.content["gift_value"]
         total_mana = gift_num * gift_value
 
-        if total_mana >= 20000:
-            await self.grant_role(message.nick_name, "HАЧИНАЮЩИЙ КОЛДУH", message.channel_id)
+        mage_roles = [
+            "НАЧИНАЮЩИЙ КОЛДУН",
+            "HAЧИНАЮЩИЙ КОЛДУН",
+            "HАЧИНАЮЩИЙ КОЛДУН",
+            "HАЧИНАЮЩИЙ КОЛДУH",
+        ]
+
+        mana_intersection = self.get_roles_intersection(message.roles, mage_roles)
+        if mana_intersection > 1:
+            for i in range(len(mana_intersection) - 1):
+                await self.revoke_role(
+                    message.nick_name,
+                    mana_intersection[i],
+                    message.channel_id,
+                    send_message=False,
+                )
+
+        if not mana_intersection and total_mana >= 20000:
+            granted_mana_roles = await self.grant_roles(
+                message.nick_name, mage_roles, message.channel_id
+            )
+            if not granted_mana_roles:
+                await self.api.send(
+                    f"У меня не получилось выдать роль {mage_roles[0]} для @{message.nick_name}"
+                )
 
         gifts = {
-            "omnomnom": {"required_amount": 1, "role": "OМНОМНОМ"},
-            "kfcislive": {"required_amount": 1, "role": "ДИЕТОЛОГ"},
-            "shaverma": {"required_amount": 1, "role": "ШAУРМАСТЕР"},
-            "Megalodon": {"required_amount": 999, "role": "МЕГАЛОМАСТЕР"},
-            "Pizza": {"required_amount": 1, "role": "ПИЦЦАМЕЙКЕР"},
-            "KAMEHb": {"required_amount": 20, "role": "КАМЕНЩИК"},
+            "omnomnom": {"required_amount": 1, "roles": ["ОМНОМНОМ", "OМНОМНОМ"]},
+            "kfcislive": {"required_amount": 1, "roles": ["ДИЕТОЛОГ"]},
+            "shaverma": {"required_amount": 1, "roles": ["Перема", "перема", "перема"]},
+            "KAMEHb": {"required_amount": 20, "roles": ["КАМЕНЩИК"]},
+            "Pizza": {"required_amount": 1, "roles": ["ПИЦЦА"]},
         }
+
+        for role in gifts.values():
+            intersection = self.get_roles_intersection(message.roles, role["roles"])
+            if intersection > 1:
+                for i in range(len(intersection) - 1):
+                    await self.revoke_role(
+                        message.nick_name,
+                        intersection[i],
+                        message.channel_id,
+                        send_message=False,
+                    )
 
         selected_gift = gifts.get(message.content["gift"])
 
@@ -115,11 +170,43 @@ class Bot:
 
         if (
             gift_num >= selected_gift["required_amount"]
-            and (selected_role := selected_gift["role"]) not in message.roles
+            and not self.get_roles_intersection(message.roles, selected_gift["roles"])
         ):
-            await self.grant_role(message.nick_name, selected_role, message.channel_id)
+            granted_roles = await self.grant_roles(
+                message.nick_name, selected_gift["roles"], message.channel_id
+            )
+            if not granted_roles:
+                await self.api.send(
+                    f"У меня не получилось выдать роль {selected_gift['roles']} для @{message.nick_name}"
+                )
 
-    async def grant_role(self, nickname: str, role: str, channel_id: int, send_message: bool = True):
+    async def revoke_role(
+        self, nickname: str, role: str, channel_id: int, send_message: bool = True
+    ):
+        logger.info(f"Revoking role {role} for {nickname} in channel {channel_id}")
+
+        res = await self.api.command(
+            f"removerole {role} {nickname}",
+            channel_id,
+        )
+        data = await res.json()
+
+        if send_message:
+            if data.get("is_success", False):
+                await self.api.send(
+                    f'@{nickname} теряет роль "{role}"!',
+                    channel_id,
+                )
+            else:
+                await self.api.send(
+                    f'У меня не получилось убрать роль "{role}" у @{nickname}. '
+                    f"Может быть, я не имею права добавлять роли?",
+                    channel_id,
+                )
+
+    async def grant_role(
+        self, nickname: str, role: str, channel_id: int, send_message: bool = True
+    ):
         logger.info(f"Granting role {role} for {nickname} in channel {channel_id}")
 
         res = await self.api.command(
@@ -140,6 +227,8 @@ class Bot:
                     f"Может быть, я не имею права добавлять роли?",
                     channel_id,
                 )
+
+        return data
 
     async def process_dice_spell(self, message: Message):
         num = message.content["num"]
@@ -193,7 +282,9 @@ class Bot:
             logger.info("Captured PK Win")
             for user in message.content_data["at"]:
                 nickname = user["name"]
-                await self.grant_role(nickname, "Чемпион", message.channel_id, send_message=False)
+                await self.grant_role(
+                    nickname, "Чемпион", message.channel_id, send_message=False
+                )
 
     async def process_llm_request(self, message: Message):
         llm_response = await self.llm_controller.handle_message(message)
