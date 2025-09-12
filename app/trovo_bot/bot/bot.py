@@ -147,7 +147,7 @@ class Bot:
             "kfcislive": {"required_amount": 1, "roles": ["ДИЕТОЛОГ"]},
             "shaverma": {"required_amount": 1, "roles": ["ШАУРМАСТЕР", "ШAУРМАСТЕР"]},
             "KAMEHb": {"required_amount": 20, "roles": ["КАМЕНЩИК"]},
-            "Pizza": {"required_amount": 1, "roles": ["ПИЦЦА"]},
+            "Pizza": {"required_amount": 1, "roles": ["ПИЦЦАМЕЙКЕР"]},
         }
 
         for role in gifts.values():
