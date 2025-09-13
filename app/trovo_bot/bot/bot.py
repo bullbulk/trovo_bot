@@ -221,12 +221,12 @@ class Bot:
                     f'@{nickname} получает роль "{role}"!',
                     channel_id,
                 )
-            else:
-                await self.api.send(
-                    f'У меня не получилось выдать роль "{role}" для @{nickname}. '
-                    f"Может быть, я не имею права добавлять роли?",
-                    channel_id,
-                )
+            # else:
+            #     await self.api.send(
+            #         f'У меня не получилось выдать роль "{role}" для @{nickname}. '
+            #         f"Может быть, я не имею права добавлять роли?",
+            #         channel_id,
+            #     )
 
         return data
 
