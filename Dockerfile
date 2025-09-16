@@ -13,6 +13,6 @@ RUN poetry install --no-interaction --no-ansi
 
 COPY . /code/
 
-EXPOSE 80
+EXPOSE 8000
 
-CMD ["python", "-m", "uvicorn", "app.trovo_bot.main:app", "--port", "8001"]
+CMD ["poetry", "run", "uvicorn", "app.trovo_bot.main:app", "--port", "8000", "--host", "0.0.0.0", "--forwarded-allow-ips", "*", "--proxy-headers"]

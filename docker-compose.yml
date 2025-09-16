@@ -1,10 +1,8 @@
-version: '3.5'
-
 services:
   trovobot:
     build:
       context: .
     env_file:
       - .env
-    expose:
-      - 8001:80
+    ports:
+      - "8001:8000"
