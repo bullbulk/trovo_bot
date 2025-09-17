@@ -5,6 +5,7 @@ from sqlalchemy import ForeignKey, CheckConstraint, func
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
 from app.db.base_class import Base
+from app.utils.config import settings
 
 
 class DiceAmount(Base):
@@ -14,7 +15,7 @@ class DiceAmount(Base):
 
 
 class MassDiceEntry(Base):
-    __tablename__ = "mass_dice_entry"
+    __tablename__ = f"{settings.DB_PREFIX}_mass_dice_entry"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     channel_id: Mapped[str] = mapped_column(server_default="0")
@@ -28,18 +29,18 @@ class MassDiceEntry(Base):
 
 
 class MassDiceBanRecord(Base):
-    __tablename__ = "mass_dice_ban_record"
+    __tablename__ = f"{settings.DB_PREFIX}_mass_dice_ban_record"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column()
     user_nickname: Mapped[str] = mapped_column()
     message: Mapped[str] = mapped_column(server_default="")
-    entry_id: Mapped[int] = mapped_column(ForeignKey("mass_dice_entry.id"))
+    entry_id: Mapped[int] = mapped_column(ForeignKey(MassDiceEntry.id))
     entry: Mapped["MassDiceEntry"] = relationship(back_populates="records")
 
 
 class VoteBanEntry(Base):
-    __tablename__ = "voteban_entry"
+    __tablename__ = f"{settings.DB_PREFIX}_voteban_entry"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     target_user_id: Mapped[int]
