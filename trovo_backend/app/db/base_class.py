@@ -18,7 +18,7 @@ class Base:
     @classmethod
     @declared_attr
     def __tablename__(cls) -> str:
-        name = cls.__name__.lower()
+        name = cls.__name__.lower() or cls.__tablename__
         if settings.DB_PREFIX:
             return f"{settings.DB_PREFIX}_{name}"
         return name
