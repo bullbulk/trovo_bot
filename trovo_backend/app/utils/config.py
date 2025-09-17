@@ -20,7 +20,11 @@ class Settings(BaseSettings):
     def assemble_server_host(cls, v, info):  # noqa
         if v:
             return v
-        return f"http://{info.data.get('TROVO_BACKEND_SERVER_NAME')}:{info.data.get('TROVO_BACKEND_SERVER_PORT')}"
+        server_name = info.data.get('TROVO_BACKEND_SERVER_NAME')
+        server_port = info.data.get('TROVO_BACKEND_SERVER_PORT')
+        if server_port:
+            return f"http://{server_name}:{server_port}"
+        return f"http://{server_name}"
 
     # BACKEND_CORS_ORIGINS is a JSON-formatted list of origins
     # e.g: '["http://localhost", "http://localhost:4200", "http://localhost:3000", \
