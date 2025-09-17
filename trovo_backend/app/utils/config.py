@@ -12,7 +12,16 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 30
 
     SERVER_NAME: str = "localhost"
-    SERVER_HOST: AnyHttpUrl = "http://localhost:8080"
+    SERVER_HOST: AnyHttpUrl | None = None
+    TROVO_BACKEND_SERVER_NAME: AnyHttpUrl | None = None
+    TROVO_BACKEND_SERVER_PORT: int | None = None
+
+    @field_validator("SERVER_HOST")
+    def assemble_server_host(cls, v, info):  # noqa
+        if v:
+            return v
+        return f"http://{info.data.get('TROVO_BACKEND_SERVER_NAME')}:{info.data.get('TROVO_BACKEND_SERVER_PORT')}"
+
     # BACKEND_CORS_ORIGINS is a JSON-formatted list of origins
     # e.g: '["http://localhost", "http://localhost:4200", "http://localhost:3000", \
     # "http://localhost:8080", "http://local.dockertoolbox.tiangolo.com"]'
@@ -33,6 +42,7 @@ class Settings(BaseSettings):
     DB_PASSWORD: str = Field(alias="DB_PASSWORD")
     DB_NAME: str = Field(alias="DB_NAME")
     DATABASE_URI: str | None = Field(alias="DATABASE_URI")
+    DB_PREFIX: str = "trovo_backend"
 
     @model_validator(mode="before")
     def assemble_db_connection(cls, v):  # noqa

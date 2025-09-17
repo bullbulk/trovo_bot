@@ -2,6 +2,8 @@ services:
   trovo_backend:
     build:
       context: ./trovo_backend
+    volumes:
+      - ./trovo_backend:/code
     env_file:
       - .env
     ports:

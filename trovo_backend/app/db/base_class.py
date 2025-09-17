@@ -3,6 +3,8 @@ from typing import Any
 from sqlalchemy import Column, DateTime, func
 from sqlalchemy.ext.declarative import as_declarative, declared_attr
 
+from app.utils.config import settings
+
 
 @as_declarative()
 class Base:
@@ -16,4 +18,7 @@ class Base:
     @classmethod
     @declared_attr
     def __tablename__(cls) -> str:
-        return cls.__name__.lower()
+        name = cls.__name__.lower()
+        if settings.DB_PREFIX:
+            return f"{settings.DB_PREFIX}_{name}"
+        return name
