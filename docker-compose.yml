@@ -1,8 +1,8 @@
 services:
-  trovobot:
+  trovo_backend:
     build:
-      context: .
+      context: ./trovo_backend
     env_file:
       - .env
     ports:
-      - "8001:8000"
+      - "8002:8000"
