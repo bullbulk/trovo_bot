@@ -10,6 +10,7 @@ from app.utils.config import settings
 class Base:
     __name__: str
     __abstract__ = True
+    tablename: str
 
     id: Any
     created_at = Column(DateTime, server_default=func.now())
@@ -18,7 +19,7 @@ class Base:
     @classmethod
     @declared_attr
     def __tablename__(cls) -> str:
-        name = cls.__name__.lower() or cls.__tablename__
+        name = cls.tablename or cls.__name__.lower()
         if settings.DB_PREFIX:
             return f"{settings.DB_PREFIX}_{name}"
         return name

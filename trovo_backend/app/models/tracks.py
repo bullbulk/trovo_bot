@@ -7,7 +7,7 @@ from app.utils.config import settings
 
 
 class Track(Base):
-    __tablename__ = f"{settings.DB_PREFIX}_track"
+    tablename = "track"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     title: Mapped[str]

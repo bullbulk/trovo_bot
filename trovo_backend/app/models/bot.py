@@ -15,7 +15,7 @@ class DiceAmount(Base):
 
 
 class MassDiceEntry(Base):
-    __tablename__ = f"{settings.DB_PREFIX}_mass_dice_entry"
+    tablename = "mass_dice_entry"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     channel_id: Mapped[str] = mapped_column(server_default="0")
@@ -29,7 +29,7 @@ class MassDiceEntry(Base):
 
 
 class MassDiceBanRecord(Base):
-    __tablename__ = f"{settings.DB_PREFIX}_mass_dice_ban_record"
+    tablename = "mass_dice_ban_record"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column()
@@ -40,7 +40,7 @@ class MassDiceBanRecord(Base):
 
 
 class VoteBanEntry(Base):
-    __tablename__ = f"{settings.DB_PREFIX}_voteban_entry"
+    tablename = "voteban_entry"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     target_user_id: Mapped[int]
