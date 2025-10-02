@@ -148,6 +148,7 @@ class Bot:
             "shaverma": {"required_amount": 1, "roles": ["ШАУРМАСТЕР", "ШAУРМАСТЕР"]},
             "KAMEHb": {"required_amount": 20, "roles": ["КАМЕНЩИК"]},
             "Pizza": {"required_amount": 1, "roles": ["ПИЦЦАМЕЙКЕР"]},
+            "Megalodon": {"required_amount": 999, "role": "МЕГАЛОМАСТЕР"},
         }
 
         for role in gifts.values():
